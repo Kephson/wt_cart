@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,7 +22,8 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 define('TYPO3_DLOG', $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG']);
 
@@ -33,7 +34,8 @@ define('TYPO3_DLOG', $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG']);
  * @package	TYPO3
  * @subpackage	tx_wtcart_powermail
  */
-class Tx_WtCart_Hooks_Forms16 extends tslib_pibase {
+class Tx_WtCart_Hooks_Forms16 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+{
 
 	/**
 	 * Don't show powermail form if session is empty
@@ -43,19 +45,20 @@ class Tx_WtCart_Hooks_Forms16 extends tslib_pibase {
 	 * @param	object			$pObj: piVars from powermail
 	 * @return	bool
 	 */
-	public function PM_MainContentAfterHook($content, $piVars, &$pObj) {
+	public function PM_MainContentAfterHook($content, $piVars, &$pObj)
+	{
 		$conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
-		$piVars = t3lib_div::_GP('tx_powermail_pi1');
+		$piVars = GeneralUtility::_GP('tx_powermail_pi1');
 
 		if ($piVars['mailID'] > 0 || $piVars['sendNow'] > 0) {
 			return FALSE; // stop
 		}
 
 		if ($conf['powermailContent.']['uid'] > 0 && intval($conf['powermailContent.']['uid']) == $pObj->cObj->data['uid']) { // if powermail uid isset and fits to current CE
-				// get products from session
+			// get products from session
 			$cart = unserialize($GLOBALS['TSFE']->fe_user->getKey('ses', 'wt_cart_' . $conf['main.']['pid']));
 
-				// if there are no products in the session clear the content
+			// if there are no products in the session clear the content
 			if ((!$cart) || $cart->getCount() == 0) {
 				$pObj->content = '';
 			}
@@ -69,7 +72,8 @@ class Tx_WtCart_Hooks_Forms16 extends tslib_pibase {
 	 * @param $sessionfields
 	 * @param $obj
 	 */
-	public function PM_MandatoryHook($error,&$markerArray,&$innerMarkerArray,&$sessionfields,$obj) {
+	public function PM_MandatoryHook($error, &$markerArray, &$innerMarkerArray, &$sessionfields, $obj)
+	{
 		$conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
 
 		// read cart from session
@@ -77,28 +81,28 @@ class Tx_WtCart_Hooks_Forms16 extends tslib_pibase {
 
 		if ($cart) {
 			if (!$cart->getOrderNumber()) {
-				$registry =  t3lib_div::makeInstance('t3lib_Registry');
-				$orderNumber =  $registry->get('tx_wtcart', 'lastOrder_'.$conf['main.']['pid']);
+				$registry = GeneralUtility::makeInstance('TYPO3\CMS\Core\Registry');
+				$orderNumber = $registry->get('tx_wtcart', 'lastOrder_' . $conf['main.']['pid']);
 				if ($orderNumber) {
 					$orderNumber += 1;
-					$registry =  t3lib_div::makeInstance('t3lib_Registry');
-					$registry->set('tx_wtcart', 'lastOrder_'.$conf['main.']['pid'],  $orderNumber);
+					$registry = GeneralUtility::makeInstance('TYPO3\CMS\Core\Registry');
+					$registry->set('tx_wtcart', 'lastOrder_' . $conf['main.']['pid'], $orderNumber);
 				} else {
 					$orderNumber = 1;
-					$registry =  t3lib_div::makeInstance('t3lib_Registry');
-					$registry->set('tx_wtcart', 'lastOrder_'.$conf['main.']['pid'],  $orderNumber);
+					$registry = GeneralUtility::makeInstance('TYPO3\CMS\Core\Registry');
+					$registry->set('tx_wtcart', 'lastOrder_' . $conf['main.']['pid'], $orderNumber);
 				}
 
 				$orderNumberConf = $conf['settings.']['fields.'];
-				$this->cObj = t3lib_div::makeInstance( 'tslib_cObj' );
-				$this->cObj->start( array('ordernumber' => $orderNumber), $orderNumberConf['ordernumber'] );
-				$orderNumber = $this->cObj->cObjGetSingle( $orderNumberConf['ordernumber'], $orderNumberConf['ordernumber.'] );
+				$this->cObj = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer');
+				$this->cObj->start(array('ordernumber' => $orderNumber), $orderNumberConf['ordernumber']);
+				$orderNumber = $this->cObj->cObjGetSingle($orderNumberConf['ordernumber'], $orderNumberConf['ordernumber.']);
 
 				$cart->setOrderNumber($orderNumber);
 			}
 
 			if (TYPO3_DLOG) {
-				t3lib_div::devLog('ordernumber', 'wt_cart', 0, array($cart->getOrderNumber()));
+				GeneralUtility::devLog('ordernumber', 'wt_cart', 0, array($cart->getOrderNumber()));
 			}
 		}
 
@@ -106,10 +110,11 @@ class Tx_WtCart_Hooks_Forms16 extends tslib_pibase {
 		$GLOBALS['TSFE']->storeSessionData();
 	}
 
-	public function PM_SubmitEmailHook($subpart, &$maildata, &$sessiondata, &$markerArray, $obj) {
+	public function PM_SubmitEmailHook($subpart, &$maildata, &$sessiondata, &$markerArray, $obj)
+	{
 		$conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.']['settings.']['overall.'];
 		$orderNumber = $GLOBALS['TSFE']->cObj->cObjGetSingle($conf['ordernumber'], $conf['ordernumber.']);
-		
+
 		$maildata['subject'] = str_replace('###ORDERNUMBER###', $orderNumber, $maildata['subject']);
 	}
 
@@ -123,20 +128,19 @@ class Tx_WtCart_Hooks_Forms16 extends tslib_pibase {
 	 * @param	object			$pObj: Parent object
 	 * @return	void
 	 */
-	public function PM_SubmitLastOneHook($content, $conf, $session, $ok, $pObj) {
-		$piVars = t3lib_div::_GPmerged('tx_powermail_pi1');
+	public function PM_SubmitLastOneHook($content, $conf, $session, $ok, $pObj)
+	{
+		$piVars = GeneralUtility::_GPmerged('tx_powermail_pi1');
 		$conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
 
 		if ($piVars['mailID'] == $conf['powermailContent.']['uid']) {
 			/** @var Tx_WtCart_Utility_Cart $utilityCart */
-			$utilityCart = t3lib_div::makeInstance('Tx_WtCart_Utility_Cart');
+			$utilityCart = GeneralUtility::makeInstance('Tx_WtCart_Utility_Cart');
 			$utilityCart->removeAllProductsFromSession();
 		}
 	}
-
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart/lib/class.tx_wtcart_powermail.php']) {
 	include_once ($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart/lib/class.tx_wtcart_powermail.php']);
 }
-?>

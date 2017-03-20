@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,48 +22,50 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
-* plugin 'Form to Cart' for the 'wt_cart' extension.
-*
-* @author  wt_cart Development Team <info@wt-cart.com>
-* @package TYPO3
-* @subpackage  tx_wtcart
-* @version 1.0.0
-*/
-class tx_wtcart_pi2 extends tslib_pibase {
-	// make configurations
-	public $prefixId = 'tx_wtcart_pi2';
-	public $scriptRelPath = 'pi2/class.tx_wtcart_pi2.php';
-	public $extKey = 'wt_cart';
+ * plugin 'Form to Cart' for the 'wt_cart' extension.
+ *
+ * @author  wt_cart Development Team <info@wt-cart.com>
+ * @package TYPO3
+ * @subpackage  tx_wtcart
+ * @version 1.0.0
+ */
+class tx_wtcart_pi2 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+{
 
+	// make configurations
+	public $prefixId = 'tx_wtcart_pi3';
+	public $scriptRelPath = 'pi3/class.tx_wtcart_pi3.php';
+	public $extKey = 'wt_cart';
 	public $tmpl = array();
 	public $formMarkerArray = array();
 
 	/**
-	* the main method of the PlugIn
-	*
-	* @param string    $content: The PlugIn content
-	* @param array   $conf: The PlugIn configuration
-	* @return  The content that is displayed on the website
-	*/	
-	public function main($content, $conf) {
-			// make configurations
+	 * the main method of the PlugIn
+	 *
+	 * @param string    $content: The PlugIn content
+	 * @param array   $conf: The PlugIn configuration
+	 * @return  The content that is displayed on the website
+	 */
+	public function main($content, $conf)
+	{
+		// make configurations
 		$this->conf = $conf;
 
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 		$this->pi_USER_INT_obj = 1;
 
-			// create new instance for function
-		$this->div = t3lib_div::makeInstance('tx_wtcart_div');
-		$this->render = t3lib_div::makeInstance('Tx_WtCart_Utility_Renderer');
-		$this->dynamicMarkers = t3lib_div::makeInstance('tx_wtcart_dynamicmarkers', $this->scriptRelPath);
+		// create new instance for function
+		$this->div = GeneralUtility::makeInstance('tx_wtcart_div');
+		$this->render = GeneralUtility::makeInstance('Tx_WtCart_Utility_Renderer');
+		$this->dynamicMarkers = GeneralUtility::makeInstance('tx_wtcart_dynamicmarkers', $this->scriptRelPath);
 
 		$this->tmpl['form'] = $this->cObj->getSubpart($this->cObj->fileResource($this->conf['main.']['template']), '###WTCART_FORM###'); // Load FORM HTML Template
-
-			//build product from FlexForm
+		//build product from FlexForm
 		$product = array();
 		$this->pi_initPIflexForm();
 		foreach ($this->conf['flexfields.'] as $key => $val) {
@@ -86,7 +88,7 @@ class tx_wtcart_pi2 extends tslib_pibase {
 		$GLOBALS['TSFE']->cObj->start($product, $this->conf['flexfields']);
 		$GLOBALS['TSFE']->cObj->start($product, $this->conf['flexfields.']['attributes']);
 
-			// get marker for all fields defined in plugin pi from wt_cart
+		// get marker for all fields defined in plugin pi from wt_cart
 		$conf_pi1 = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
 		$conf_pi1_fields = $conf_pi1['settings.']['powermailCart.']['fields.'];
 		foreach ((array) $conf_pi1_fields as $key => $value) {
@@ -99,18 +101,16 @@ class tx_wtcart_pi2 extends tslib_pibase {
 		$this->formMarkerArray['###WTCART_FORM_ACTION###'] = $this->pi_getPageLink($this->conf['main.']['pid']);
 		$this->formMarkerArray['###WTCART_FORM_CONTENTUID###'] = $this->cObj->data['uid'];
 
-			// Get html template
+		// Get html template
 		$this->content = $this->cObj->substituteMarkerArrayCached($this->tmpl['form'], null, $this->formMarkerArray);
-			// Fill dynamic locallang or typoscript markers
+		// Fill dynamic locallang or typoscript markers
 		$this->content = $this->dynamicMarkers->main($this->content, $this);
-			// Finally clear not filled markers
+		// Finally clear not filled markers
 		$this->content = preg_replace('|###.*?###|i', '', $this->content);
 		return $this->pi_wrapInBaseClass($this->content);
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart/pi2/class.tx_wtcart_pi2.php'])
-{
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart/pi2/class.tx_wtcart_pi2.php']) {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart/pi2/class.tx_wtcart_pi2.php']);
 }
-?>

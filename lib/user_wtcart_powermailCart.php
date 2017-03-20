@@ -3,6 +3,7 @@
 /***************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -23,6 +24,7 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
 * plugin 'Cart' for the 'powermail' extension.
@@ -32,7 +34,7 @@
 * @subpackage  user_wtcart_powermailCart
 * @version 1.2.1
 */
-class user_wtcart_powermailCart extends tslib_pibase {
+class user_wtcart_powermailCart extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 		// make configurations
 	public $prefixId = 'tx_wtcart_pi1';
 	public $scriptRelPath = 'pi1/class.tx_wtcart_pi1.php';
@@ -56,7 +58,7 @@ class user_wtcart_powermailCart extends tslib_pibase {
 		$this->pi_USER_INT_obj = 1;
 
 		if ( $this->cObj == null ) {
-			$this->cObj = t3lib_div::makeInstance('tslib_cObj');
+			$this->cObj = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer');
 		}
 
 		$this->conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
@@ -73,12 +75,24 @@ class user_wtcart_powermailCart extends tslib_pibase {
 		$this->tmpl['additional_all'] = $this->cObj->getSubpart($this->cObj->fileResource($this->conf['main.']['template']), '###WTCART_ADDITIONAL###');
 		$this->tmpl['additional_item'] = $this->cObj->getSubpart($this->tmpl['additional_all'], '###ITEM###');
 
-		$this->div = t3lib_div::makeInstance('tx_wtcart_div'); // Create new instance for div functions
-		$this->render = t3lib_div::makeInstance('Tx_WtCart_Utility_Renderer'); // Create new instance for render functions
-		$this->dynamicMarkers = t3lib_div::makeInstance('tx_wtcart_dynamicmarkers'); // Create new instance for dynamicmarker function
+		$this->div = GeneralUtility::makeInstance('tx_wtcart_div'); // Create new instance for div functions
+		$this->render = GeneralUtility::makeInstance('Tx_WtCart_Utility_Renderer'); // Create new instance for render functions
+		$this->dynamicMarkers = GeneralUtility::makeInstance('tx_wtcart_dynamicmarkers'); // Create new instance for dynamicmarker function
 
 		// get cart from the session
-		$cart = unserialize($GLOBALS['TSFE']->fe_user->getKey('ses', 'wt_cart_' . $this->conf['main.']['pid']));
+//		\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($this->conf, __FILE__ . ':' . __LINE__);
+
+		/**
+		 * @var $cart Tx_WtCart_Domain_Model_Cart
+		 */
+		$session = $GLOBALS['TSFE']->fe_user->getKey('ses', 'wt_cart_' . $this->conf['main.']['pid']);
+		if ($session) {
+			$cart = unserialize($session);
+		} else {
+			$this->isNetCart = intval($this->conf['main.']['isNetCart']) == 0 ? FALSE : TRUE;
+
+			$cart = new Tx_WtCart_Domain_Model_Cart($this->isNetCart);
+		}
 
 		// there are products in the session
 		if ($cart->getCount() > 0) {
@@ -102,6 +116,7 @@ class user_wtcart_powermailCart extends tslib_pibase {
 
 			// Get html template
 			$this->content = $this->cObj->substituteMarkerArrayCached($this->tmpl['all'], $this->outerMarkerArray, $subpartArray);
+			$this->content = $this->cObj->substituteMarkerArrayCached($this->content, $this->outerMarkerArray);
 				// Fill dynamic locallang or typoscript markers
 			$this->content = $this->dynamicMarkers->main($this->content, $this);
 				// Finally clear not filled markers

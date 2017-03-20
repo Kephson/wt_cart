@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,18 +22,17 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
 
 /**
-* Plugin 'Cart' for the 'wt_cart' extension.
-*
-* @author	Daniel Lorenz <daniel.lorenz@extco.de>
-* @package	TYPO3
-* @subpackage	tx_wtcart
-* @version	1.5.0
-*/
-class Tx_WtCart_Domain_Model_Payment extends Tx_WtCart_Domain_Model_Service {
-
+ * Plugin 'Cart' for the 'wt_cart' extension.
+ *
+ * @author	Daniel Lorenz <daniel.lorenz@extco.de>
+ * @package	TYPO3
+ * @subpackage	tx_wtcart
+ * @version	1.5.0
+ */
+class Tx_WtCart_Domain_Model_Payment extends Tx_WtCart_Domain_Model_Service
+{
+	
 }
-
-?>

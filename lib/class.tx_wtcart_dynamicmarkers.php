@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,9 +22,10 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
 
-class tx_wtcart_dynamicmarkers extends tslib_pibase {
+class tx_wtcart_dynamicmarkers extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+{
 
 	public $extKey = 'wt_cart';
 	public $scriptRelPath = 'pi1/class.tx_wtcart_pi1.php';
@@ -38,17 +39,19 @@ class tx_wtcart_dynamicmarkers extends tslib_pibase {
 		'wtcart_ts_' // prefix for typoscript part
 	);
 
-	function __construct($path = NULL) {
+	public function __construct($path = NULL)
+	{
 		parent::__construct();
-		
-		// constructor for t3lib_div::makeInstance; the first parameter overwrites public $scriptRelPath to load the correct translation file
+
+		// constructor for GeneralUtility::makeInstance; the first parameter overwrites public $scriptRelPath to load the correct translation file
 		if ($path) {
 			$this->scriptRelPath = $path;
 		}
 	}
 
 	// Function main() to replace typoscript- and locallang markers
-	function main($content, $pObj) {
+	public function main($content, $pObj)
+	{
 		// config
 		$this->conf = $pObj->conf;
 		$this->cObj = $pObj->cObj;
@@ -57,16 +60,16 @@ class tx_wtcart_dynamicmarkers extends tslib_pibase {
 
 		// 1. replace locallang markers
 		$this->content = preg_replace_callback(// Automaticly fill locallangmarkers with fitting value of locallang.xml
-						'#\#\#\#' . $this->locallangmarker_prefix[0] . '(.*)\#\#\##Uis', // regulare expression
-						array($this, 'DynamicLocalLangMarker'), // open function
-						$this->content // current content
+			'#\#\#\#' . $this->locallangmarker_prefix[0] . '(.*)\#\#\##Uis', // regulare expression
+			array($this, 'DynamicLocalLangMarker'), // open function
+			$this->content // current content
 		);
 
 		// 2. replace typoscript markers
 		$this->content = preg_replace_callback(// Automaticly fill locallangmarkers with fitting value of locallang.xml
-						'#\#\#\#' . $this->typoscriptmarker_prefix[0] . '(.*)\#\#\##Uis', // regulare expression
-						array($this, 'DynamicTyposcriptMarker'), // open function
-						$this->content // current content
+			'#\#\#\#' . $this->typoscriptmarker_prefix[0] . '(.*)\#\#\##Uis', // regulare expression
+			array($this, 'DynamicTyposcriptMarker'), // open function
+			$this->content // current content
 		);
 
 		if (!empty($this->content))
@@ -74,16 +77,18 @@ class tx_wtcart_dynamicmarkers extends tslib_pibase {
 	}
 
 	// Function DynamicLocalLangMarker() to get automaticly a marker from locallang.xml (###LOCALLANG_BLABLA### from locallang.xml: locallangmarker_blabla)
-	function DynamicLocalLangMarker($array) {
+	public function DynamicLocalLangMarker($array)
+	{
 		if (!empty($array[1]))
 			$string = $this->pi_getLL(strtolower($this->locallangmarker_prefix[1] . $array[1]), '<i>' . strtolower($array[1]) . '</i>'); // search for a fitting entry in locallang.xml or typoscript
 
-			if (!empty($string))
+		if (!empty($string))
 			return $string;
 	}
 
 	// Function DynamicTyposcriptMarker() to get automaticly a marker from typoscript
-	function DynamicTyposcriptMarker($array) {
+	public function DynamicTyposcriptMarker($array)
+	{
 		if ($this->conf[$this->typoscriptmarker_prefix[1] . strtolower($array[1])]) { // If there is a fitting entry in typoscript
 			$string = $this->cObj->cObjGetSingle($this->conf[$this->typoscriptmarker_prefix[1] . strtolower($array[1])], $this->conf[$this->typoscriptmarker_prefix[1] . strtolower($array[1]) . '.']); // fill string with typoscript value
 		}
@@ -91,10 +96,8 @@ class tx_wtcart_dynamicmarkers extends tslib_pibase {
 		if (!empty($string))
 			return $string;
 	}
-
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart/lib/class.tx_wtcart_dynamicmarkers.php']) {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart/lib/class.tx_wtcart_dynamicmarkers.php']);
 }
-?>

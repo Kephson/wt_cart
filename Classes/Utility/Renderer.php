@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,17 +22,20 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
-* Plugin 'Cart' for the 'wt_cart' extension.
-*
-* @author	wt_cart Development Team <info@wt-cart.com>
-* @package	TYPO3
-* @subpackage	tx_wtcart
-* @version	1.4.0
-*/
-class Tx_WtCart_Utility_Renderer {
+ * Plugin 'Cart' for the 'wt_cart' extension.
+ *
+ * @author	wt_cart Development Team <info@wt-cart.com>
+ * @package	TYPO3
+ * @subpackage	tx_wtcart
+ * @version	1.4.0
+ */
+class Tx_WtCart_Utility_Renderer
+{
+
 	public $prefixId = 'tx_wtcart_pi1';
 	public $scriptRelPath = 'pi1/class.tx_wtcart_pi1.php';
 	public $extKey = 'wt_cart';
@@ -48,18 +51,19 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return null
 	 */
-	public function loadTemplate(&$obj) {
+	public function loadTemplate(&$obj)
+	{
 
-		$powermailValues = t3lib_div::_GET('tx_powermail_pi1');
-		if ( $powermailValues && $powermailValues['action'] ) {
+		$powermailValues = GeneralUtility::_GET('tx_powermail_pi1');
+		if ($powermailValues && $powermailValues['action']) {
 			$this->powermailAction = $powermailValues['action'];
 		}
 
 		$obj->tmpl['all'] = $obj->cObj->getSubpart($obj->cObj->fileResource($obj->conf['main.']['template']), '###WTCART###');
 
-		if ( $this->powermailAction == 'confirmation' ) {
+		if ($this->powermailAction == 'confirmation') {
 			$confirmation_all = $obj->cObj->getSubpart($obj->cObj->fileResource($obj->conf['main.']['template']), '###WTCART_CONFIRMATION###');
-			if ( !empty( $confirmation_all ) ) {
+			if (!empty($confirmation_all)) {
 				$obj->tmpl['all'] = $confirmation_all;
 			}
 		}
@@ -94,13 +98,29 @@ class Tx_WtCart_Utility_Renderer {
 		return NULL;
 	}
 
-	public function renderClearCartLink(&$obj) {
+	public function renderCheckoutLink(&$obj)
+	{
+		$obj->subpartMarkerArray['###CHECKOUT_LINK1###'] = $GLOBALS['TSFE']->cObj->TEXT(
+			array(
+				'value' => $obj->pi_getLL('forward_to_order', 'To Checkout'),
+				'typolink.' => array(
+					'parameter' => $obj->conf['main.']['checkout']
+				)
+			)
+		);
+		$obj->subpartMarkerArray['###CHECKOUT_LINK2###'] = $obj->subpartMarkerArray['###CHECKOUT_LINK1###'];
+		return NULL;
+	}
+
+	public function renderClearCartLink(&$obj)
+	{
 		$obj->subpartMarkerArray['###CLEARCART###'] = $GLOBALS['TSFE']->cObj->cObjGetSingle($obj->conf['settings.']['fields.']['clear_cart'], $obj->conf['settings.']['fields.']['clear_cart.']);
 
 		return NULL;
 	}
 
-	public function renderBackPageLink(&$obj) {
+	public function renderBackPageLink(&$obj)
+	{
 		$session = $GLOBALS['TSFE']->fe_user->getKey('ses', 'wt_cart_' . $this->conf['main.']['pid']);
 
 		$obj->subpartMarkerArray['###BACKPAGELINK###'] = $session;
@@ -113,7 +133,8 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return string
 	 */
-	public function renderProductList($cart, &$obj) {
+	public function renderProductList($cart, &$obj)
+	{
 		$content = '';
 
 		foreach ($cart->getProducts() as $product) {
@@ -132,15 +153,16 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return string
 	 */
-	public function renderProductItem(&$product, &$obj) {
-			// clear marker array to avoid problems with error msg etc.
+	public function renderProductItem(&$product, &$obj)
+	{
+		// clear marker array to avoid problems with error msg etc.
 		unset($markerArray);
 		unset($productArr);
 
 		$productArr = $product->toArray();
 
-		if ( $productArr['additional'] ) {
-			foreach($productArr['additional'] as $key => $value) {
+		if ($productArr['additional']) {
+			foreach ($productArr['additional'] as $key => $value) {
 				$productArr[$key] = $value;
 			}
 		}
@@ -153,18 +175,18 @@ class Tx_WtCart_Utility_Renderer {
 						'product' => &$product
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
 
 		$GLOBALS['TSFE']->cObj->start($productArr, $obj->conf['db.']['table']);
 
-		$fields = (array)$obj->conf['settings.']['fields.'];
+		$fields = (array) $obj->conf['settings.']['fields.'];
 
 		if ($this->powermailAction == 'confirmation') {
-			unset( $fields['delete'] );
-			unset( $fields['delete.'] );
+			unset($fields['delete']);
+			unset($fields['delete.']);
 		}
 
 		foreach ($fields as $key => $value) {
@@ -181,7 +203,7 @@ class Tx_WtCart_Utility_Renderer {
 			}
 		}
 
-		foreach ((array)$obj->conf['settings.']['fields.']['additional.'] as $key => $value) {
+		foreach ((array) $obj->conf['settings.']['fields.']['additional.'] as $key => $value) {
 			if (!stristr($key, '.')) {
 				$tsKey = $obj->conf['settings.']['fields.']['additional.'][$key];
 				$tsConf = $obj->conf['settings.']['fields.']['additional.'][$key . '.'];
@@ -200,7 +222,7 @@ class Tx_WtCart_Utility_Renderer {
 						'product' => &$product
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
@@ -213,17 +235,16 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return string
 	 */
-	public function renderProductItemWithVariants(&$product, &$obj) {
-			// clear marker array to avoid problems with error msg etc.
+	public function renderProductItemWithVariants(&$product, &$obj)
+	{
+		// clear marker array to avoid problems with error msg etc.
 		unset($markerArray);
 		unset($productArr);
 
 		$productArr = $product->toArray();
 
-		if ( $productArr['additional'] ) {
-			foreach($productArr['additional'] as $key => $value) {
-				$productArr[$key] = $value;
-			}
+		foreach ($productArr['additional'] as $key => $value) {
+			$productArr[$key] = $value;
 		}
 
 		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['wt_cart']['changeFieldArrayBeforeRenderProductItemWithVariants']) {
@@ -234,14 +255,14 @@ class Tx_WtCart_Utility_Renderer {
 						'product' => &$product
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
 
 		$GLOBALS['TSFE']->cObj->start($productArr, $obj->conf['db.']['table']);
 
-		foreach ((array)$obj->conf['settings.']['fields.'] as $key => $value) {
+		foreach ((array) $obj->conf['settings.']['fields.'] as $key => $value) {
 			if (!stristr($key, '.')) {
 				if ($key == 'tax') {
 					$tsKey = $obj->conf['settings.']['fields.']['taxclass.'][$key];
@@ -255,7 +276,7 @@ class Tx_WtCart_Utility_Renderer {
 			}
 		}
 
-		foreach ((array)$obj->conf['settings.']['fields.']['additional.'] as $key => $value) {
+		foreach ((array) $obj->conf['settings.']['fields.']['additional.'] as $key => $value) {
 			if (!stristr($key, '.')) {
 				$tsKey = $obj->conf['settings.']['fields.']['additional.'][$key];
 				$tsConf = $obj->conf['settings.']['fields.']['additional.'][$key . '.'];
@@ -264,7 +285,7 @@ class Tx_WtCart_Utility_Renderer {
 			}
 		}
 
-		$isToBeDisplayed  = TRUE;
+		$isToBeDisplayed = TRUE;
 
 		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['wt_cart']['changeMarkerArrayBeforeRenderProductItemWithVariants']) {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['wt_cart']['changeMarkerArrayBeforeRenderProductItemWithVariants'] as $funcRef) {
@@ -275,7 +296,7 @@ class Tx_WtCart_Utility_Renderer {
 						'isToBeDisplayed' => &$isToBeDisplayed
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
@@ -298,7 +319,8 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return void
 	 */
-	public function renderVariant(&$content, $variantArr, $variants, &$obj) {
+	public function renderVariant(&$content, $variantArr, $variants, &$obj)
+	{
 		$variantArr['variantcount'] += 1;
 		if ($variants) {
 
@@ -309,13 +331,13 @@ class Tx_WtCart_Utility_Renderer {
 							'variants' => &$variants
 						);
 
-						t3lib_div::callUserFunction($funcRef, $params, $this);
+						GeneralUtility::callUserFunction($funcRef, $params, $this);
 					}
 				}
 			}
 
 			foreach ($variants as $variant) {
-					// enable .field in typoscript
+				// enable .field in typoscript
 				$variantArr['variant'][$variantArr['variantcount']] = $variant->getId();
 				$variantArr['variantParam'] = '[' . join('][', $variantArr['variant']) . ']';
 				$variantArr['qty'] = $variant->getQty();
@@ -346,7 +368,7 @@ class Tx_WtCart_Utility_Renderer {
 								'variant' => &$variant
 							);
 
-							t3lib_div::callUserFunction($funcRef, $params, $this);
+							GeneralUtility::callUserFunction($funcRef, $params, $this);
 						}
 					}
 				}
@@ -357,7 +379,7 @@ class Tx_WtCart_Utility_Renderer {
 					$this->renderVariant($content, $variantArr, $variant->getVariants(), $obj);
 				} else {
 					if ($obj->conf['settings.']['fields.']) {
-						foreach ((array)$obj->conf['settings.']['fields.'] as $key => $value) {
+						foreach ((array) $obj->conf['settings.']['fields.'] as $key => $value) {
 							if (!stristr($key, '.')) {
 								if ($key == 'tax') {
 									$tsKey = $obj->conf['settings.']['fields.']['taxclass.'][$key];
@@ -371,7 +393,7 @@ class Tx_WtCart_Utility_Renderer {
 							}
 						}
 
-						foreach ((array)$obj->conf['settings.']['fields.']['additional.'] as $key => $value) {
+						foreach ((array) $obj->conf['settings.']['fields.']['additional.'] as $key => $value) {
 							if (!stristr($key, '.')) {
 								$tsKey = $obj->conf['settings.']['fields.']['additional.'][$key];
 								$tsConf = $obj->conf['settings.']['fields.']['additional.'][$key . '.'];
@@ -389,7 +411,7 @@ class Tx_WtCart_Utility_Renderer {
 									'variant' => &$variant
 								);
 
-								t3lib_div::callUserFunction($funcRef, $params, $this);
+								GeneralUtility::callUserFunction($funcRef, $params, $this);
 							}
 						}
 					}
@@ -401,7 +423,6 @@ class Tx_WtCart_Utility_Renderer {
 							unset($variantArr[$key]);
 						}
 					}
-
 				}
 
 				unset($variantArr['hint1']);
@@ -414,7 +435,8 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return null
 	 */
-	public function renderOverall($cart, &$obj) {
+	public function renderOverall($cart, &$obj)
+	{
 		$outerArr = array(
 			'service_cost_net' => $cart->getServiceNet(),
 			'service_cost_gross' => $cart->getServiceGross(),
@@ -429,7 +451,7 @@ class Tx_WtCart_Utility_Renderer {
 		}
 
 		if (TYPO3_DLOG) {
-			t3lib_div::devLog('outerArr', $obj->extKey, 0, $outerArr);
+			GeneralUtility::devLog('outerArr', $obj->extKey, 0, $outerArr);
 		}
 
 		// enable .field in typoscript
@@ -448,7 +470,8 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return null
 	 */
-	public function renderMiniCart($cart, &$obj) {
+	public function renderMiniCart($cart, &$obj)
+	{
 		$outerArr = array(
 			'minicart_count' => $cart->getCount(),
 			'minicart_gross' => $cart->getGross(),
@@ -469,8 +492,9 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return null
 	 */
-	public function renderEmptyCart(&$obj) {
-			// if template found overwrite normal template with empty template
+	public function renderEmptyCart(&$obj)
+	{
+		// if template found overwrite normal template with empty template
 		if (!empty($obj->tmpl['all'])) {
 			$obj->tmpl['all'] = $obj->tmpl['empty'];
 		} else {
@@ -487,18 +511,19 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return null
 	 */
-	public function renderServiceList(&$cart, &$options, &$seloption, &$obj) {
+	public function renderServiceList(&$cart, &$options, &$seloption, &$obj)
+	{
 		$content = '';
 
 		if (is_array($options)) {
-			$class = get_class( array_shift( array_values( $options ) ) );
-			$type = strtolower( substr( strrchr( $class, '_' ), 1 ) );
-			$upperType = strtoupper( $type );
+			$class = get_class(array_shift(array_values($options)));
+			$type = strtolower(substr(strrchr($class, '_'), 1));
+			$upperType = strtoupper($type);
 		} else {
 			return NULL;
 		}
 		foreach ($options as $key => $option) {
-				// hide option if not available by cart['grossNoService']
+			// hide option if not available by cart['grossNoService']
 			$show = $option->isAvailable($cart->getGross());
 
 			if ($show || $obj->conf[$type . '.']['show_all_disabled']) {
@@ -512,30 +537,22 @@ class Tx_WtCart_Utility_Renderer {
 				$availableUntil = $option->getAvailableUntil();
 
 				if (isset($freeFrom)) {
-					$pmarkerArray['###CONDITION###'] =
-							$obj->pi_getLL('wtcart_ll_' . $type . '_free_from') . ' ' . $this->formatPrice($freeFrom, $obj);
-					$conditionList['###CONTENT###'] .=
-							$obj->cObj->substituteMarkerArrayCached($obj->tmpl[$type . '_condition_item'], $pmarkerArray);
+					$pmarkerArray['###CONDITION###'] = $obj->pi_getLL('wtcart_ll_' . $type . '_free_from') . ' ' . $this->formatPrice($freeFrom, $obj);
+					$conditionList['###CONTENT###'] .= $obj->cObj->substituteMarkerArrayCached($obj->tmpl[$type . '_condition_item'], $pmarkerArray);
 				}
 				if (isset($freeUntil)) {
-					$pmarkerArray['###CONDITION###'] =
-							$obj->pi_getLL('wtcart_ll_' . $type . '_free_until') . ' ' . $this->formatPrice($freeUntil, $obj);
-					$conditionList['###CONTENT###'] .=
-							$obj->cObj->substituteMarkerArrayCached($obj->tmpl[$type . '_condition_item'], $pmarkerArray);
+					$pmarkerArray['###CONDITION###'] = $obj->pi_getLL('wtcart_ll_' . $type . '_free_until') . ' ' . $this->formatPrice($freeUntil, $obj);
+					$conditionList['###CONTENT###'] .= $obj->cObj->substituteMarkerArrayCached($obj->tmpl[$type . '_condition_item'], $pmarkerArray);
 				}
 
 				if (!$show) {
 					if (isset($availableFrom)) {
-						$pmarkerArray['###CONDITION###'] =
-								$obj->pi_getLL('wtcart_ll_' . $type . '_available_from') . ' ' . $this->formatPrice($availableFrom, $obj);
-						$conditionList['###CONTENT###'] .=
-								$obj->cObj->substituteMarkerArrayCached($obj->tmpl[$type . '_condition_item'], $pmarkerArray);
+						$pmarkerArray['###CONDITION###'] = $obj->pi_getLL('wtcart_ll_' . $type . '_available_from') . ' ' . $this->formatPrice($availableFrom, $obj);
+						$conditionList['###CONTENT###'] .= $obj->cObj->substituteMarkerArrayCached($obj->tmpl[$type . '_condition_item'], $pmarkerArray);
 					}
 					if (isset($availableUntil)) {
-						$pmarkerArray['###CONDITION###'] =
-								$obj->pi_getLL('wtcart_ll_' . $type . '_available_until') . ' ' . $this->formatPrice($availableUntil, $obj);
-						$conditionList['###CONTENT###'] .=
-								$obj->cObj->substituteMarkerArrayCached($obj->tmpl[$type . '_condition_item'], $pmarkerArray);
+						$pmarkerArray['###CONDITION###'] = $obj->pi_getLL('wtcart_ll_' . $type . '_available_until') . ' ' . $this->formatPrice($availableUntil, $obj);
+						$conditionList['###CONTENT###'] .= $obj->cObj->substituteMarkerArrayCached($obj->tmpl[$type . '_condition_item'], $pmarkerArray);
 					}
 				}
 
@@ -596,9 +613,9 @@ class Tx_WtCart_Utility_Renderer {
 
 				if ($type != 'special') {
 					if ($option->getId() == $seloption->getId()) {
-						$checkradio =  'checked="checked"';
+						$checkradio = 'checked="checked"';
 					} else {
-						$checkradio =  '';
+						$checkradio = '';
 					}
 					$obj->smarkerArray['###' . $upperType . '_RADIO###'] = '<input type="radio" onchange="this.form.submit()" name="tx_wtcart_pi1[' . $type . ']" id="tx_wtcart_pi1_' . $type . '_' . intval($key) . '"  value="' . intval($key) . '"  ' . $checkradio . $disabled . '/>';
 				} else {
@@ -642,12 +659,13 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return void
 	 */
-	public function renderAdditional(&$cart, &$obj) {
+	public function renderAdditional(&$cart, &$obj)
+	{
 		$additional['###CONTENT###'] = '';
 
 		$cartArr = array();
 
-		foreach($cart->getAdditionalArray() as $additional_key => $additional_val) {
+		foreach ($cart->getAdditionalArray() as $additional_key => $additional_val) {
 			$cartArr[$additional_key] = $additional_val;
 		}
 
@@ -659,7 +677,7 @@ class Tx_WtCart_Utility_Renderer {
 						'cart' => &$cart
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
@@ -685,7 +703,8 @@ class Tx_WtCart_Utility_Renderer {
 	 * @param $obj
 	 * @return null
 	 */
-	public function renderServiceItem(&$cart, &$seloption, $type, &$obj) {
+	public function renderServiceItem(&$cart, &$seloption, $type, &$obj)
+	{
 		$item = '';
 
 		if (is_array($seloption)) {
@@ -714,19 +733,20 @@ class Tx_WtCart_Utility_Renderer {
 		return NULL;
 	}
 
-
 	/**
 	 * @param $value
 	 * @param $obj
 	 * @return string
 	 */
-	private function formatPrice($value, &$obj) {
+	private function formatPrice($value, &$obj)
+	{
+		return '';
 		$obj->conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
 
 		$currencySymbol = $obj->conf['main.']['currencySymbol'];
 		$price = number_format($value, $obj->conf['main.']['decimal'], $obj->conf['main.']['dec_point'], $obj->conf['main.']['thousands_sep']);
 
-			// print currency symbol before or after price
+		// print currency symbol before or after price
 		if ($obj->conf['main.']['currencySymbolBeforePrice']) {
 			$price = $currencySymbol . ' ' . $price;
 		} else {
@@ -735,5 +755,4 @@ class Tx_WtCart_Utility_Renderer {
 
 		return $price;
 	}
-
 }

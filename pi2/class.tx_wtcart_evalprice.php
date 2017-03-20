@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,11 +22,13 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
 
-class tx_wtcart_evalprice {
+class tx_wtcart_evalprice
+{
 
-	function returnFieldJS() {
+	public function returnFieldJS()
+	{
 		$js = '
 			var re = new RegExp("^[0-9]{1,}[.,]{0,1}[0-9]{0,2}$");
 
@@ -40,14 +42,12 @@ class tx_wtcart_evalprice {
 		return $js;
 	}
 
-	function evaluateFieldValue($value, $is_in, &$set) {	
-		if ($value == '' OR $value == 'please enter a price' OR !preg_match("/^[0-9]{1,}[.,]{0,1}[0-9]{0,2}$/", $value))
-		{
+	public function evaluateFieldValue($value, $is_in, &$set)
+	{
+		if ($value == '' OR $value == 'please enter a price' OR ! preg_match("/^[0-9]{1,}[.,]{0,1}[0-9]{0,2}$/", $value)) {
 			return "please enter a price";
 		}
 
 		return $value;
 	}
 }
-
-?>

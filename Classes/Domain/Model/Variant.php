@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,7 +22,8 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Plugin 'Cart' for the 'wt_cart' extension.
@@ -32,7 +33,8 @@
  * @subpackage    tx_wtcart
  * @version    1.5.0
  */
-class Tx_WtCart_Domain_Model_Variant {
+class Tx_WtCart_Domain_Model_Variant
+{
 
 	/**
 	 * @var Tx_WtCart_Domain_Model_Product
@@ -133,7 +135,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @internal param $name
 	 * @return Tx_WtCart_Domain_Model_Variant
 	 */
-	public function __construct($id, $title, $sku, $priceCalcMethod, $price, Tx_WtCart_Domain_Model_Tax $taxclass, $qty, $isNetPrice = FALSE) {
+	public function __construct($id, $title, $sku, $priceCalcMethod, $price, Tx_WtCart_Domain_Model_Tax $taxclass, $qty, $isNetPrice = FALSE)
+	{
 		$this->id = $id;
 		$this->title = $title;
 		$this->sku = $sku;
@@ -150,7 +153,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return void
 	 */
-	public function debug() {
+	public function debug()
+	{
 		if (TYPO3_DLOG) {
 			//debug all variants
 			if ($this->variants) {
@@ -162,7 +166,7 @@ class Tx_WtCart_Domain_Model_Variant {
 			// debug the product itself
 			$out = $this->toArray();
 
-			t3lib_div::devLog('variant', 'wt_cart', 0, $out);
+			GeneralUtility::devLog('variant', 'wt_cart', 0, $out);
 		}
 	}
 
@@ -170,14 +174,16 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @deprecated since wt_cart 2.1; will be removed in wt_cart 3.0; use toArray instead
 	 * @return array
 	 */
-	public function getVariantAsArray() {
+	public function getVariantAsArray()
+	{
 		return $this->toArray();
 	}
 
 	/**
 	 * @return array
 	 */
-	public function toArray() {
+	public function toArray()
+	{
 		$variantArr = array(
 			'id' => $this->id,
 			'sku' => $this->sku,
@@ -197,10 +203,10 @@ class Tx_WtCart_Domain_Model_Variant {
 
 			foreach ($this->variants as $variant) {
 				/** @var $variant Tx_WtCart_Domain_Model_Variant */
-				array_push( $innerVariantArr, array( $variant->getId() => $variant->toArray() ) );
+				array_push($innerVariantArr, array($variant->getId() => $variant->toArray()));
 			}
 
-			array_push( $variantArr, array('variants' => $innerVariantArr) );
+			array_push($variantArr, array('variants' => $innerVariantArr));
 		}
 
 		return $variantArr;
@@ -209,57 +215,64 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @param Tx_WtCart_Domain_Model_Product
 	 */
-	public function setProduct($product) {
+	public function setProduct($product)
+	{
 		$this->product = $product;
 	}
 
 	/**
 	 * @return Tx_WtCart_Domain_Model_Product
 	 */
-	public function getProduct() {
+	public function getProduct()
+	{
 		return $this->product;
 	}
 
 	/**
 	 * @param Tx_WtCart_Domain_Model_Variant
 	 */
-	public function setParentVariant(Tx_WtCart_Domain_Model_Variant $parentVariant) {
+	public function setParentVariant(Tx_WtCart_Domain_Model_Variant $parentVariant)
+	{
 		$this->parentVariant = $parentVariant;
 	}
 
 	/**
 	 * @return Tx_WtCart_Domain_Model_Variant
 	 */
-	public function getParentVariant() {
+	public function getParentVariant()
+	{
 		return $this->parentVariant;
 	}
-
 
 	/**
 	 * @param boolean
 	 */
-	public function setIsNetPrice($isNetPrice) {
+	public function setIsNetPrice($isNetPrice)
+	{
 		$this->isNetPrice = $isNetPrice;
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function getIsNetPrice() {
+	public function getIsNetPrice()
+	{
 		return $this->isNetPrice;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getId() {
+	public function getId()
+	{
 		return $this->id;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getTitle() {
+	public function getTitle()
+	{
 		return $this->title;
 	}
 
@@ -267,22 +280,24 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @param $title
 	 * @return string
 	 */
-	public function setTitle($title) {
+	public function setTitle($title)
+	{
 		$this->title = $title;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getPrice() {
+	public function getPrice()
+	{
 		return $this->price;
 	}
-
 
 	/**
 	 * @return float
 	 */
-	public function getDiscount() {
+	public function getDiscount()
+	{
 		$price = $this->getPrice();
 
 		if ($this->getParentVariant()) {
@@ -322,7 +337,7 @@ class Tx_WtCart_Domain_Model_Variant {
 						'discount' => &$discount,
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
@@ -333,7 +348,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return float
 	 */
-	public function getPriceCalculated() {
+	public function getPriceCalculated()
+	{
 		$price = $this->getPrice();
 
 		if ($this->getParentVariant()) {
@@ -373,7 +389,7 @@ class Tx_WtCart_Domain_Model_Variant {
 						'discount' => &$discount,
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
@@ -402,7 +418,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return float
 	 */
-	public function getParentPrice() {
+	public function getParentPrice()
+	{
 		if ($this->priceCalcMethod == 0) {
 			return FALSE;
 		} else {
@@ -417,7 +434,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @param $price
 	 */
-	public function setPrice($price) {
+	public function setPrice($price)
+	{
 		$this->price = $price;
 
 		$this->reCalc();
@@ -426,70 +444,80 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return int
 	 */
-	public function getPriceCalcMethod() {
+	public function getPriceCalcMethod()
+	{
 		return $this->priceCalcMethod;
 	}
 
 	/**
 	 * @param $priceCalcMethod
 	 */
-	public function setPriceCalcMethod($priceCalcMethod) {
+	public function setPriceCalcMethod($priceCalcMethod)
+	{
 		$this->priceCalcMethod = $priceCalcMethod;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getSku() {
+	public function getSku()
+	{
 		return $this->sku;
 	}
 
 	/**
 	 * @param $sku
 	 */
-	public function setSku($sku) {
+	public function setSku($sku)
+	{
 		$this->sku = $sku;
 	}
 
 	/**
 	 * @return integer
 	 */
-	public function getHasFeVariants() {
+	public function getHasFeVariants()
+	{
 		return $this->hasFeVariants;
 	}
 
 	/**
 	 * @param $hasFeVariants
 	 */
-	public function setHasFeVariants($hasFeVariants) {
+	public function setHasFeVariants($hasFeVariants)
+	{
 		$this->hasFeVariants = $hasFeVariants;
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function getIsFeVariant() {
+	public function getIsFeVariant()
+	{
 		return $this->isFeVariant;
 	}
 
 	/**
 	 * @param boolean $isFeVariant
 	 */
-	public function setIsFeVariant($isFeVariant) {
+	public function setIsFeVariant($isFeVariant)
+	{
 		$this->isFeVariant = $isFeVariant;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getQty() {
+	public function getQty()
+	{
 		return $this->qty;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getGross() {
+	public function getGross()
+	{
 		$this->calcGross();
 		return $this->gross;
 	}
@@ -497,7 +525,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return float
 	 */
-	public function getNet() {
+	public function getNet()
+	{
 		$this->calcNet();
 		return $this->net;
 	}
@@ -505,21 +534,24 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return array
 	 */
-	public function getTax() {
+	public function getTax()
+	{
 		return array('taxclassid' => $this->taxClass->getId(), 'tax' => $this->tax);
 	}
 
 	/**
 	 * @return Tx_WtCart_Domain_Model_Tax
 	 */
-	public function getTaxClass() {
+	public function getTaxClass()
+	{
 		return $this->taxClass;
 	}
 
 	/**
 	 * @param $newQty
 	 */
-	public function setQty($newQty) {
+	public function setQty($newQty)
+	{
 		$this->qty = $newQty;
 
 		$this->reCalc();
@@ -528,7 +560,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @param $newQty
 	 */
-	public function changeQty($newQty) {
+	public function changeQty($newQty)
+	{
 		$this->qty = $newQty;
 
 		if ($this->variants) {
@@ -545,7 +578,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @internal param $id
 	 * @internal param $newQty
 	 */
-	public function changeVariantsQty($variantQtyArray) {
+	public function changeVariantsQty($variantQtyArray)
+	{
 		foreach ($variantQtyArray as $variantId => $qty) {
 			$variant = $this->variants[$variantId];
 
@@ -563,7 +597,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @param array $newVariants
 	 * @return mixed
 	 */
-	public function addVariants($newVariants) {
+	public function addVariants($newVariants)
+	{
 		foreach ($newVariants as $newVariant) {
 			$this->addVariant($newVariant);
 		}
@@ -573,7 +608,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @param Tx_WtCart_Domain_Model_Variant $newVariant
 	 * @return mixed
 	 */
-	public function addVariant(Tx_WtCart_Domain_Model_Variant $newVariant) {
+	public function addVariant(Tx_WtCart_Domain_Model_Variant $newVariant)
+	{
 		$newVariantId = $newVariant->getId();
 		$variant = $this->variants[$newVariantId];
 
@@ -595,7 +631,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return array
 	 */
-	public function getVariants() {
+	public function getVariants()
+	{
 		return $this->variants;
 	}
 
@@ -603,7 +640,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @param $variantId
 	 * @return Tx_WtCart_Domain_Model_Variant
 	 */
-	public function getVariantById($variantId) {
+	public function getVariantById($variantId)
+	{
 		return $this->variants[$variantId];
 	}
 
@@ -611,7 +649,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @param $variantId
 	 * @return Tx_WtCart_Domain_Model_Variant
 	 */
-	public function getVariant($variantId) {
+	public function getVariant($variantId)
+	{
 		return $this->getVariantById($variantId);
 	}
 
@@ -619,7 +658,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @param $variantsArray
 	 * @return bool|int
 	 */
-	public function removeVariants($variantsArray) {
+	public function removeVariants($variantsArray)
+	{
 		foreach ($variantsArray as $variantId => $value) {
 			$variant = $this->variants[$variantId];
 			if ($variant) {
@@ -647,7 +687,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return void
 	 */
-	private function calcGross() {
+	private function calcGross()
+	{
 		if ($this->isNetPrice == FALSE) {
 			if ($this->variants) {
 				$sum = 0.0;
@@ -694,7 +735,7 @@ class Tx_WtCart_Domain_Model_Variant {
 								'discount' => &$discount,
 							);
 
-							t3lib_div::callUserFunction($funcRef, $params, $this);
+							GeneralUtility::callUserFunction($funcRef, $params, $this);
 						}
 					}
 				}
@@ -718,7 +759,6 @@ class Tx_WtCart_Domain_Model_Variant {
 				}
 
 				$this->gross = ($parentPrice + $price + $discount) * $this->qty;
-
 			}
 		} else {
 			$this->calcNet();
@@ -730,7 +770,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return void
 	 */
-	private function calcTax() {
+	private function calcTax()
+	{
 		if ($this->isNetPrice == FALSE) {
 			$this->calcGross();
 			$this->tax = ($this->gross / (1 + $this->taxClass->getCalc())) * ($this->taxClass->getCalc());
@@ -743,7 +784,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return void
 	 */
-	private function calcNet() {
+	private function calcNet()
+	{
 		if ($this->isNetPrice == TRUE) {
 			if ($this->variants) {
 				$sum = 0.0;
@@ -790,7 +832,7 @@ class Tx_WtCart_Domain_Model_Variant {
 								'discount' => &$discount,
 							);
 
-							t3lib_div::callUserFunction($funcRef, $params, $this);
+							GeneralUtility::callUserFunction($funcRef, $params, $this);
 						}
 					}
 				}
@@ -825,7 +867,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return void
 	 */
-	private function reCalc() {
+	private function reCalc()
+	{
 		if ($this->variants) {
 			$qty = 0;
 			foreach ($this->variants as $variant) {
@@ -851,7 +894,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	/**
 	 * @return array
 	 */
-	public function getAdditionalArray() {
+	public function getAdditionalArray()
+	{
 		return $this->additional;
 	}
 
@@ -859,7 +903,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @param $additional
 	 * @return void
 	 */
-	public function setAdditionalArray($additional) {
+	public function setAdditionalArray($additional)
+	{
 		$this->additional = $additional;
 	}
 
@@ -867,7 +912,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @param $key
 	 * @return mixed
 	 */
-	public function getAdditional($key) {
+	public function getAdditional($key)
+	{
 		return $this->additional[$key];
 	}
 
@@ -876,9 +922,8 @@ class Tx_WtCart_Domain_Model_Variant {
 	 * @param mixed $value
 	 * @return void
 	 */
-	public function setAdditional($key, $value) {
+	public function setAdditional($key, $value)
+	{
 		$this->additional[$key] = $value;
 	}
 }
-
-?>

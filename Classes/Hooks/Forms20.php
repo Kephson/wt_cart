@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,7 +22,9 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
+use \TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 /**
  * Controller for powermail form signals
@@ -31,18 +33,20 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_WtCart_Hooks_Forms20 extends Tx_Powermail_Controller_FormsController {
+class Tx_WtCart_Hooks_Forms20 extends Tx_Powermail_Controller_FormsController
+{
 
 	/**
 	 * @param Array $forms
 	 * @param Tx_Powermail_Controller_FormsController $obj
 	 * @return bool
 	 */
-	public function checkTemplate($forms, $obj) {
-		$utilityTemplate = t3lib_div::makeInstance('Tx_WtCart_Utility_Template');
+	public function checkTemplate($forms, $obj)
+	{
+		$utilityTemplate = GeneralUtility::makeInstance('Tx_WtCart_Utility_Template');
 		$templatePath = $utilityTemplate->checkTemplate($forms, $obj->cObj->data['uid']);
-		if ( $templatePath ) {
-			$this->switchTemplate( $obj, $templatePath );
+		if ($templatePath) {
+			$this->switchTemplate($obj, $templatePath);
 		}
 	}
 
@@ -53,8 +57,9 @@ class Tx_WtCart_Hooks_Forms20 extends Tx_Powermail_Controller_FormsController {
 	 * @param Tx_Powermail_Controller_FormsController $obj
 	 * @param null $newMail
 	 */
-	public function clearSession($field = array(), $form, $mail = NULL, $obj, $newMail = NULL) {
-		$utilityCart = t3lib_div::makeInstance('Tx_WtCart_Utility_Cart');
+	public function clearSession($field = array(), $form, $mail = NULL, $obj, $newMail = NULL)
+	{
+		$utilityCart = GeneralUtility::makeInstance('Tx_WtCart_Utility_Cart');
 		return $utilityCart->clearSession($mail, NULL, $obj->cObj->data['uid']);
 	}
 
@@ -63,19 +68,19 @@ class Tx_WtCart_Hooks_Forms20 extends Tx_Powermail_Controller_FormsController {
 	 * @param $hash
 	 * @param Tx_Powermail_Controller_FormsController $obj
 	 */
-	public function slotCreateActionBeforeRenderView($mail, $hash, $obj) {
-		$utilityCart = t3lib_div::makeInstance('Tx_WtCart_Utility_Cart');
-		return $utilityCart->slotCreateActionBeforeRenderView($mail, $hash, $obj->cObj->data['uid'], $obj->settings);
+	public function slotCreateActionBeforeRenderView($mail, $hash, $obj)
+	{
+		$utilityCart = GeneralUtility::makeInstance('Tx_WtCart_Utility_Cart');
+		return $utilityCart->slotCreateActionBeforeRenderView($mail, $hash, $obj->cObj->data['uid']);
 	}
 
 	/**
 	 * @param Tx_Powermail_Controller_FormsController $obj
 	 * @param String $templatePath Template Path and Filename
 	 */
-	protected function switchTemplate($obj, $templatePath){
-		$obj->view->setTemplatePathAndFilename( $templatePath );
+	protected function switchTemplate($obj, $templatePath)
+	{
+		$templatePath = ExtensionManagementUtility::extPath('wt_cart', $templatePath);
+		$obj->view->setTemplatePathAndFilename($templatePath);
 	}
-
 }
-
-?>

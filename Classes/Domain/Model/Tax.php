@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,7 +22,7 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
 
 /**
  * Plugin 'Cart' for the 'wt_cart' extension.
@@ -32,7 +32,8 @@
  * @subpackage    tx_wtcart
  * @version    1.5.0
  */
-class Tx_WtCart_Domain_Model_Tax {
+class Tx_WtCart_Domain_Model_Tax
+{
 
 	/**
 	 * @var integer
@@ -68,34 +69,31 @@ class Tx_WtCart_Domain_Model_Tax {
 	 * @throws InvalidArgumentException
 	 * @return \Tx_WtCart_Domain_Model_Tax
 	 */
-	public function __construct($id, $value, $calc, $name) {
-		if ( !$id ) {
+	public function __construct($id, $value, $calc, $name)
+	{
+		if (!$id) {
 			throw new \InvalidArgumentException(
-				'You have to specify a valid $id for constructor.',
-				1413981328
+			'You have to specify a valid $id for constructor.', 1413981328
 			);
 		}
-		if ( empty($value) && ($value !== '0') ) {
+		if (empty($value) && ($value !== '0')) {
 			throw new \InvalidArgumentException(
-				'You have to specify a valid $value for constructor.',
-				1413981329
+			'You have to specify a valid $value for constructor.', 1413981329
 			);
 		}
-		if ( !$calc ) {
+		if (!$calc) {
 			throw new \InvalidArgumentException(
-				'You have to specify a valid $calc for constructor.',
-				1413981330
+			'You have to specify a valid $calc for constructor.', 1413981330
 			);
 		}
-		if ( empty($name) && ($name !== '0') ) {
+		if (empty($name) && ($name !== '0')) {
 			throw new \InvalidArgumentException(
-				'You have to specify a valid $name for constructor.',
-				1413981331
+			'You have to specify a valid $name for constructor.', 1413981331
 			);
 		}
 
 		$this->id = $id;
-		$this->value = str_replace($LocaleInfo["mon_decimal_point"] , ".", $value);
+		$this->value = str_replace($LocaleInfo["mon_decimal_point"], ".", $value);
 		$this->calc = $calc;
 		$this->name = $name;
 	}
@@ -103,30 +101,32 @@ class Tx_WtCart_Domain_Model_Tax {
 	/**
 	 * @return int
 	 */
-	public function getId() {
+	public function getId()
+	{
 		return $this->id;
 	}
 
 	/**
 	 * @return mixed|string
 	 */
-	public function getValue() {
+	public function getValue()
+	{
 		return $this->value;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getCalc() {
+	public function getCalc()
+	{
 		return $this->calc;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getName() {
+	public function getName()
+	{
 		return $this->name;
 	}
 }
-
-?>

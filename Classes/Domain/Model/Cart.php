@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,19 +22,22 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 define('TYPO3_DLOG', $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG']);
 
 /**
-* Plugin 'Cart' for the 'wt_cart' extension.
-*
-* @author	Daniel Lorenz <daniel.lorenz@extco.de>
-* @package	TYPO3
-* @subpackage	tx_wtcart
-* @version	1.5.0
-*/
-class Tx_WtCart_Domain_Model_Cart {
+ * Plugin 'Cart' for the 'wt_cart' extension.
+ *
+ * @author	Daniel Lorenz <daniel.lorenz@extco.de>
+ * @package	TYPO3
+ * @subpackage	tx_wtcart
+ * @version	1.5.0
+ */
+class Tx_WtCart_Domain_Model_Cart
+{
+
 	/**
 	 * @var float
 	 */
@@ -136,7 +139,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @var boolean
 	 * @return Tx_WtCart_Domain_Model_Cart
 	 */
-	public function __construct($isNetCart = FALSE) {
+	public function __construct($isNetCart = FALSE)
+	{
 		$this->net = 0.0;
 		$this->gross = 0.0;
 		$this->count = 0;
@@ -152,7 +156,8 @@ class Tx_WtCart_Domain_Model_Cart {
 		$this->isNetCart = $isNetCart;
 	}
 
-	public function __sleep() {
+	public function __sleep()
+	{
 		return array(
 			'net',
 			'gross',
@@ -177,22 +182,25 @@ class Tx_WtCart_Domain_Model_Cart {
 		);
 	}
 
-	public function __wakeup() {
-
+	public function __wakeup()
+	{
+		
 	}
 
 	/**
 	 * @param boolean
 	 * @return void
 	 */
-	public function setIsNetCart($isNetCart) {
+	public function setIsNetCart($isNetCart)
+	{
 		$this->isNetCart = $isNetCart;
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function getIsNetCart() {
+	public function getIsNetCart()
+	{
 		return $this->isNetCart;
 	}
 
@@ -201,11 +209,11 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @throws LogicException
 	 * @return void
 	 */
-	public function setOrderNumber($orderNumber) {
-		if ( ($this->orderNumber) && ($this->orderNumber != $orderNumber) ) {
+	public function setOrderNumber($orderNumber)
+	{
+		if (($this->orderNumber) && ($this->orderNumber != $orderNumber)) {
 			throw new \LogicException(
-				'You can not redeclare the order number of your cart.',
-				1413969668
+			'You can not redeclare the order number of your cart.', 1413969668
 			);
 		}
 
@@ -215,7 +223,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return string
 	 */
-	public function getOrderNumber() {
+	public function getOrderNumber()
+	{
 		return $this->orderNumber;
 	}
 
@@ -224,11 +233,11 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @throws LogicException
 	 * @return void
 	 */
-	public function setInvoiceNumber($invoiceNumber) {
-		if ( ($this->invoiceNumber) && ($this->invoiceNumber != $invoiceNumber) ) {
+	public function setInvoiceNumber($invoiceNumber)
+	{
+		if (($this->invoiceNumber) && ($this->invoiceNumber != $invoiceNumber)) {
 			throw new \LogicException(
-				'You can not redeclare the invoice number of your cart.',
-				1413969712
+			'You can not redeclare the invoice number of your cart.', 1413969712
 			);
 		}
 
@@ -238,7 +247,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return string
 	 */
-	public function getInvoiceNumber() {
+	public function getInvoiceNumber()
+	{
 		return $this->invoiceNumber;
 	}
 
@@ -246,14 +256,16 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $net
 	 * @return void
 	 */
-	public function addNet($net) {
+	public function addNet($net)
+	{
 		$this->net += $net;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getNet() {
+	public function getNet()
+	{
 		return $this->net;
 	}
 
@@ -261,7 +273,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $net
 	 * @return void
 	 */
-	public function setNet($net) {
+	public function setNet($net)
+	{
 		$this->net = $net;
 	}
 
@@ -269,7 +282,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $net
 	 * @return void
 	 */
-	public function subNet($net) {
+	public function subNet($net)
+	{
 		$this->net -= $net;
 	}
 
@@ -277,14 +291,16 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $gross
 	 * @return void
 	 */
-	public function addGross($gross) {
+	public function addGross($gross)
+	{
 		$this->gross += $gross;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getGross() {
+	public function getGross()
+	{
 		return $this->gross;
 	}
 
@@ -292,7 +308,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $gross
 	 * @return void
 	 */
-	public function setGross($gross) {
+	public function setGross($gross)
+	{
 		$this->gross = $gross;
 	}
 
@@ -300,7 +317,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $gross
 	 * @return void
 	 */
-	public function subGross($gross) {
+	public function subGross($gross)
+	{
 		$this->gross -= $gross;
 	}
 
@@ -308,67 +326,38 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $tax
 	 * @return void
 	 */
-	public function addTax($tax) {
+	public function addTax($tax)
+	{
 		$this->taxes[$tax['taxclassid']] += $tax['tax'];
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getTaxes() {
+	public function getTaxes()
+	{
 		return $this->taxes;
 	}
 
 	/**
 	 * @return array
-	 * @deprecated
 	 */
-	public function getTaxesWithServices() {
-		return $this->getTotalTaxes();
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getTotalTaxes() {
+	public function getTaxesWithServices()
+	{
 		$taxes = $this->taxes;
 
 		if ($this->payment) {
 			$tax = $this->payment->getTax($this);
-			$taxes[$this->payment->getTaxClass()->getId()] += $tax;
+			$taxes[$tax['taxclassid']] += $tax['tax'];
 		}
 		if ($this->shipping) {
 			$tax = $this->shipping->getTax($this);
-			$taxes[$this->payment->getTaxClass()->getId()] += $tax;
+			$taxes[$tax['taxclassid']] += $tax['tax'];
 		}
 		if ($this->specials) {
 			foreach ($this->specials as $special) {
 				$tax = $special->getTax($this);
-				$taxes[$this->payment->getTaxClass()->getId()] += $tax;
-			}
-		}
-
-		return $taxes;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getServiceTaxes() {
-		$taxes = array();
-
-		if ($this->payment) {
-			$tax = $this->payment->getTax();
-			$taxes[$this->payment->getTaxClass()->getId()] += $tax;
-		}
-		if ($this->shipping) {
-			$tax = $this->shipping->getTax();
-			$taxes[$this->payment->getTaxClass()->getId()] += $tax;
-		}
-		if ($this->specials) {
-			foreach ($this->specials as $special) {
-				$tax = $special->getTax();
-				$taxes[$special->getTaxClass()->getId()] += $tax;
+				$taxes[$tax['taxclassid']] += $tax['tax'];
 			}
 		}
 
@@ -380,7 +369,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $tax
 	 * @return void
 	 */
-	public function setTax($taxclass, $tax) {
+	public function setTax($taxclass, $tax)
+	{
 		$this->taxes[$taxclass] = $tax;
 	}
 
@@ -388,7 +378,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $tax
 	 * @return void
 	 */
-	public function subTax($tax) {
+	public function subTax($tax)
+	{
 		$this->taxes[$tax['taxclassid']] -= $tax['tax'];
 	}
 
@@ -396,14 +387,16 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $count
 	 * @return void
 	 */
-	public function addCount($count) {
+	public function addCount($count)
+	{
 		$this->count += $count;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getCount() {
+	public function getCount()
+	{
 		return $this->count;
 	}
 
@@ -411,7 +404,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $count
 	 * @return void
 	 */
-	public function setCount($count) {
+	public function setCount($count)
+	{
 		$this->count = $count;
 	}
 
@@ -419,44 +413,50 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $count
 	 * @return void
 	 */
-	public function subCount($count) {
+	public function subCount($count)
+	{
 		$this->count -= $count;
 	}
 
 	/**
 	 * @return Tx_WtCart_Domain_Model_Shipping
 	 */
-	public function getShipping() {
+	public function getShipping()
+	{
 		return $this->shipping;
 	}
 
 	/**
-	 * @param Tx_WtCart_Domain_Model_Shipping $shipping
+	 * @param $shipping
 	 * @return void
 	 */
-	public function setShipping($shipping) {
+	public function setShipping($shipping)
+	{
 		$this->shipping = $shipping;
 	}
 
 	/**
 	 * @return Tx_WtCart_Domain_Model_Payment
 	 */
-	public function getPayment() {
+	public function getPayment()
+	{
 		return $this->payment;
 	}
 
 	/**
-	 * @param Tx_WtCart_Domain_Model_Payment $payment
+	 * @param $payment
 	 * @return void
 	 */
-	public function setPayment($payment) {
+	public function setPayment($payment)
+	{
 		$this->payment = $payment;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getSpecials() {
+	public function getSpecials()
+	{
 		return $this->specials;
 	}
 
@@ -464,7 +464,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $newspecial
 	 * @return void
 	 */
-	public function addSpecial($newspecial) {
+	public function addSpecial($newspecial)
+	{
 		$this->specials[$newspecial->getId()] = $newspecial;
 	}
 
@@ -472,25 +473,27 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $special
 	 * @return void
 	 */
-	public function removeSpecial($special) {
+	public function removeSpecial($special)
+	{
 		unset($this->specials[$special->getId()]);
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getServiceNet() {
+	public function getServiceNet()
+	{
 		$net = 0.0;
 
 		if ($this->payment) {
-			$net += $this->payment->getNet();
+			$net += $this->payment->getNet($this);
 		}
 		if ($this->shipping) {
-			$net += $this->shipping->getNet();
+			$net += $this->shipping->getNet($this);
 		}
 		if ($this->specials) {
 			foreach ($this->specials as $special) {
-				$net += $special->getNet();
+				$net += $special->getNet($this);
 			}
 		}
 
@@ -500,18 +503,19 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return float
 	 */
-	public function getServiceGross() {
+	public function getServiceGross()
+	{
 		$gross = 0.0;
 
 		if ($this->payment) {
-			$gross += $this->payment->getGross();
+			$gross += $this->payment->getGross($this);
 		}
 		if ($this->shipping) {
-			$gross += $this->shipping->getGross();
+			$gross += $this->shipping->getGross($this);
 		}
 		if ($this->specials) {
 			foreach ($this->specials as $special) {
-				$gross += $special->getGross();
+				$gross += $special->getGross($this);
 			}
 		};
 
@@ -521,7 +525,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return array
 	 */
-	public function getProducts() {
+	public function getProducts()
+	{
 		return $this->products;
 	}
 
@@ -529,7 +534,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $id
 	 * @return Tx_WtCart_Domain_Model_Product
 	 */
-	public function getProductById($id) {
+	public function getProductById($id)
+	{
 		return $this->products[$id];
 	}
 
@@ -537,14 +543,16 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $id
 	 * @return Tx_WtCart_Domain_Model_Product
 	 */
-	public function getProduct($id) {
+	public function getProduct($id)
+	{
 		return $this->getProductById($id);
 	}
 
 	/**
 	 * @return array
 	 */
-	public function toArray() {
+	public function toArray()
+	{
 		if ($this->payment) {
 			$paymentName = $this->payment->getName();
 		}
@@ -579,14 +587,16 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return string
 	 */
-	public function toJson() {
-		json_encode( $this->toArray() );
+	public function toJson()
+	{
+		json_encode($this->toArray());
 	}
 
 	/**
 	 * @return void
 	 */
-	public function debug() {
+	public function debug()
+	{
 		if (TYPO3_DLOG) {
 			//debug all products
 			if ($this->products) {
@@ -596,7 +606,7 @@ class Tx_WtCart_Domain_Model_Cart {
 			}
 
 			// debug the cart itself
-			t3lib_div::devLog('cart', 'wt_cart', 0, $this->toArray());
+			GeneralUtility::devLog('cart', 'wt_cart', 0, $this->toArray());
 		}
 	}
 
@@ -605,7 +615,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @internal param \Product $newproduct
 	 * @return void
 	 */
-	public function addProduct(Tx_WtCart_Domain_Model_Product $newProduct) {
+	public function addProduct(Tx_WtCart_Domain_Model_Product $newProduct)
+	{
 		$tableProductId = $newProduct->getTableProductId();
 		$product = $this->products[$tableProductId];
 
@@ -629,7 +640,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @internal param $newQty
 	 * @return void
 	 */
-	public function changeProduct($product, $newProduct) {
+	public function changeProduct($product, $newProduct)
+	{
 		$newQty = $product->getQty() + $newProduct->getQty();
 
 		$this->subCount($product->getQty());
@@ -637,7 +649,7 @@ class Tx_WtCart_Domain_Model_Cart {
 		$this->subNet($product->getNet());
 		$this->subTax($product->getTax());
 
-			// if the new product has a variant then change it in product
+		// if the new product has a variant then change it in product
 		if ($newProduct->getVariants()) {
 			$product->addVariants($newProduct->getVariants());
 		}
@@ -650,7 +662,7 @@ class Tx_WtCart_Domain_Model_Cart {
 		$this->addNet($product->getNet());
 		$this->addTax($product->getTax());
 
-			//update all service attributes
+		//update all service attributes
 		$this->updateServiceAttributes();
 	}
 
@@ -660,7 +672,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @internal param $newQty
 	 * @return void
 	 */
-	public function changeProductsQty($productQtyArray) {
+	public function changeProductsQty($productQtyArray)
+	{
 		foreach ($productQtyArray as $productPuid => $qty) {
 			$product = $this->products[$productPuid];
 
@@ -678,7 +691,7 @@ class Tx_WtCart_Domain_Model_Cart {
 					$this->addNet($product->getNet());
 					$this->addTax($product->getTax());
 				} else {
-						// only run, if qty was realy changed
+					// only run, if qty was realy changed
 					if ($product->getQty() != $qty) {
 						$this->subCount($product->getQty());
 						$this->subGross($product->getGross());
@@ -695,7 +708,7 @@ class Tx_WtCart_Domain_Model_Cart {
 				}
 			}
 
-				//update all service attributes
+			//update all service attributes
 			$this->updateServiceAttributes();
 		}
 	}
@@ -704,12 +717,13 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $productsArray
 	 * @return bool|int
 	 */
-	public function removeProducts( $productsArray ) {
-		if ( is_array($productsArray) ) {
-			foreach ($productsArray as $productPuid => $productValue ) {
+	public function removeProducts($productsArray)
+	{
+		if (is_array($productsArray)) {
+			foreach ($productsArray as $productPuid => $productValue) {
 				$product = $this->products[$productPuid];
-				if ( $product ) {
-					$this->removeProduct( $product, $productValue );
+				if ($product) {
+					$this->removeProduct($product, $productValue);
 				} else {
 					return -1;
 				}
@@ -717,8 +731,8 @@ class Tx_WtCart_Domain_Model_Cart {
 		} else {
 			$productPuid = $productsArray;
 			$product = $this->products[$productPuid];
-			if ( $product ) {
-				$this->removeProduct( $product );
+			if ($product) {
+				$this->removeProduct($product);
 			} else {
 				return -1;
 			}
@@ -734,12 +748,13 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param array $productValue
 	 * @return bool
 	 */
-	public function removeProduct( $product, $productValue = NULL) {
-		if ( is_array($productValue) ) {
+	public function removeProduct($product, $productValue = NULL)
+	{
+		if (is_array($productValue)) {
 			$product->removeVariants($productValue);
 
 			if (!$product->getVariants()) {
-				unset( $this->products[$product->getTableProductId()] );
+				unset($this->products[$product->getTableProductId()]);
 			}
 
 			$this->calcAll();
@@ -749,7 +764,7 @@ class Tx_WtCart_Domain_Model_Cart {
 			$this->subNet($product->getNet());
 			$this->subTax($product->getTax());
 
-			unset( $this->products[$product->getTableProductId()] );
+			unset($this->products[$product->getTableProductId()]);
 		}
 
 		return TRUE;
@@ -761,13 +776,11 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param Tx_WtCart_Domain_Model_Product $newproduct
 	 * @return void
 	 */
-	private function addServiceAttributes($newproduct) {
-		$this->maxServiceAttr1 =
-				$this->maxServiceAttr1 > $newproduct->getServiceAttribute1() ? $this->maxServiceAttr1 : $newproduct->getServiceAttribute1();
-		$this->maxServiceAttr2 =
-				$this->maxServiceAttr2 > $newproduct->getServiceAttribute2() ? $this->maxServiceAttr2 : $newproduct->getServiceAttribute2();
-		$this->maxServiceAttr3 =
-				$this->maxServiceAttr3 > $newproduct->getServiceAttribute3() ? $this->maxServiceAttr3 : $newproduct->getServiceAttribute3();
+	private function addServiceAttributes($newproduct)
+	{
+		$this->maxServiceAttr1 = $this->maxServiceAttr1 > $newproduct->getServiceAttribute1() ? $this->maxServiceAttr1 : $newproduct->getServiceAttribute1();
+		$this->maxServiceAttr2 = $this->maxServiceAttr2 > $newproduct->getServiceAttribute2() ? $this->maxServiceAttr2 : $newproduct->getServiceAttribute2();
+		$this->maxServiceAttr3 = $this->maxServiceAttr3 > $newproduct->getServiceAttribute3() ? $this->maxServiceAttr3 : $newproduct->getServiceAttribute3();
 
 		$this->sumServiceAttr1 += $newproduct->getServiceAttribute1() * $newproduct->getQty();
 		$this->sumServiceAttr2 += $newproduct->getServiceAttribute2() * $newproduct->getQty();
@@ -779,7 +792,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 *
 	 * @return void
 	 */
-	private function updateServiceAttributes() {
+	private function updateServiceAttributes()
+	{
 		$this->maxServiceAttr1 = 0.0;
 		$this->maxServiceAttr2 = 0.0;
 		$this->maxServiceAttr3 = 0.0;
@@ -788,12 +802,9 @@ class Tx_WtCart_Domain_Model_Cart {
 		$this->sumServiceAttr3 = 0.0;
 
 		foreach ($this->products as $key => $product) {
-			$this->maxServiceAttr1 =
-					$this->maxServiceAttr1 > $product->getServiceAttribute1() ? $this->maxServiceAttr1 : $product->getServiceAttribute1();
-			$this->maxServiceAttr2 =
-					$this->maxServiceAttr2 > $product->getServiceAttribute2() ? $this->maxServiceAttr2 : $product->getServiceAttribute2();
-			$this->maxServiceAttr3 =
-					$this->maxServiceAttr3 > $product->getServiceAttribute3() ? $this->maxServiceAttr3 : $product->getServiceAttribute3();
+			$this->maxServiceAttr1 = $this->maxServiceAttr1 > $product->getServiceAttribute1() ? $this->maxServiceAttr1 : $product->getServiceAttribute1();
+			$this->maxServiceAttr2 = $this->maxServiceAttr2 > $product->getServiceAttribute2() ? $this->maxServiceAttr2 : $product->getServiceAttribute2();
+			$this->maxServiceAttr3 = $this->maxServiceAttr3 > $product->getServiceAttribute3() ? $this->maxServiceAttr3 : $product->getServiceAttribute3();
 
 			$this->sumServiceAttr1 = $product->getServiceAttribute1() * $product->getQty();
 			$this->sumServiceAttr2 = $product->getServiceAttribute2() * $product->getQty();
@@ -804,42 +815,48 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return float
 	 */
-	public function getMaxServiceAttribute1() {
+	public function getMaxServiceAttribute1()
+	{
 		return $this->maxServiceAttr1;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getMaxServiceAttribute2() {
+	public function getMaxServiceAttribute2()
+	{
 		return $this->maxServiceAttr2;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getMaxServiceAttribute3() {
+	public function getMaxServiceAttribute3()
+	{
 		return $this->maxServiceAttr3;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getSumServiceAttribute1() {
+	public function getSumServiceAttribute1()
+	{
 		return $this->sumServiceAttr1;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getSumServiceAttribute2() {
+	public function getSumServiceAttribute2()
+	{
 		return $this->sumServiceAttr2;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getSumServiceAttribute3() {
+	public function getSumServiceAttribute3()
+	{
 		return $this->sumServiceAttr3;
 	}
 
@@ -847,7 +864,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $shipping
 	 * @return void
 	 */
-	public function changeShipping($shipping) {
+	public function changeShipping($shipping)
+	{
 		$this->shipping = $shipping;
 	}
 
@@ -855,7 +873,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $payment
 	 * @return void
 	 */
-	public function changePayment($payment) {
+	public function changePayment($payment)
+	{
 		$this->payment = $payment;
 	}
 
@@ -863,14 +882,16 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $special
 	 * @return void
 	 */
-	public function changeSpecial($special) {
+	public function changeSpecial($special)
+	{
 		$this->special = $special;
 	}
 
 	/**
 	 * @return void
 	 */
-	private function calcAll() {
+	private function calcAll()
+	{
 		$this->calcCount();
 		$this->calcGross();
 		$this->calcTax();
@@ -880,7 +901,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return void
 	 */
-	private function calcCount() {
+	private function calcCount()
+	{
 		$this->count = 0;
 		if ($this->products) {
 			foreach ($this->products as $product) {
@@ -892,7 +914,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return void
 	 */
-	private function calcGross() {
+	private function calcGross()
+	{
 		$this->gross = 0.0;
 		if ($this->products) {
 			foreach ($this->products as $product) {
@@ -904,7 +927,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return void
 	 */
-	private function calcNet() {
+	private function calcNet()
+	{
 		$this->net = 0.0;
 		if ($this->products) {
 			foreach ($this->products as $product) {
@@ -916,7 +940,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return void
 	 */
-	private function calcTax() {
+	private function calcTax()
+	{
 		$this->taxes = array();
 		if ($this->products) {
 			foreach ($this->products as $product) {
@@ -928,7 +953,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return void
 	 */
-	public function reCalc() {
+	public function reCalc()
+	{
 		$this->calcGross();
 		$this->calcNet();
 		$this->calcTax();
@@ -937,7 +963,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @return array
 	 */
-	public function getAdditionalArray() {
+	public function getAdditionalArray()
+	{
 		return $this->additional;
 	}
 
@@ -945,14 +972,16 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $additional
 	 * @return void
 	 */
-	public function setAdditionalArray($additional) {
+	public function setAdditionalArray($additional)
+	{
 		$this->additional = $additional;
 	}
 
 	/**
 	 * @return void
 	 */
-	public function unsetAdditionalArray() {
+	public function unsetAdditionalArray()
+	{
 		$this->additional = array();
 	}
 
@@ -960,7 +989,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param $key
 	 * @return mixed
 	 */
-	public function getAdditional($key) {
+	public function getAdditional($key)
+	{
 		return $this->additional[$key];
 	}
 
@@ -969,7 +999,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param mixed $value
 	 * @return void
 	 */
-	public function setAdditional($key, $value) {
+	public function setAdditional($key, $value)
+	{
 		$this->additional[$key] = $value;
 	}
 
@@ -977,7 +1008,8 @@ class Tx_WtCart_Domain_Model_Cart {
 	 * @param string $key
 	 * @return void
 	 */
-	public function unsetAdditional($key) {
+	public function unsetAdditional($key)
+	{
 		if ($this->additional[$key]) {
 			unset($this->additional[$key]);
 		}
@@ -986,30 +1018,16 @@ class Tx_WtCart_Domain_Model_Cart {
 	/**
 	 * @param int $orderId
 	 */
-	public function setOrderId($orderId) {
+	public function setOrderId($orderId)
+	{
 		$this->orderId = $orderId;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getOrderId() {
+	public function getOrderId()
+	{
 		return $this->orderId;
 	}
-
-	/**
-	 * @return float
-	 */
-	public function getTotalGross() {
-		return $this->gross + $this->getServiceGross();
-	}
-
-	/**
-	 * @return float
-	 */
-	public function getTotalNet() {
-		return $this->net + $this->getServiceNet();
-	}
 }
-
-?>

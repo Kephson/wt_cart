@@ -3,6 +3,7 @@
 /***************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -23,6 +24,7 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * plugin 'Cart' for the 'wt_cart' extension.
@@ -31,7 +33,7 @@
  * @package	TYPO3
  * @subpackage	tx_wtcart
  */
-class user_wtcart_userfuncs extends tslib_pibase {
+class user_wtcart_userfuncs extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin {
 
 	public $prefixId = 'tx_wtcart_pi1';
 
@@ -66,7 +68,7 @@ class user_wtcart_userfuncs extends tslib_pibase {
 	 */
 	public function user_wtcart_clearCart($content = '', $conf = array()) {
 		/** @var Tx_WtCart_Utility_Cart $utilityCart */
-		$utilityCart = t3lib_div::makeInstance('Tx_WtCart_Utility_Cart');
+		$utilityCart = GeneralUtility::makeInstance('Tx_WtCart_Utility_Cart');
 		$utilityCart->removeAllProductsFromSession();
 	}
 }
@@ -75,4 +77,3 @@ if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart
 {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart/lib/user_wtcart_userfuncs.php']);
 }
-?>

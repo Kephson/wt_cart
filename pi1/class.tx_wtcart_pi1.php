@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,7 +22,9 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
+use \TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 define('TYPO3_DLOG', $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG']);
 
@@ -34,16 +36,15 @@ define('TYPO3_DLOG', $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG']);
  * @subpackage  tx_wtcart
  * @version 1.2.2
  */
-class tx_wtcart_pi1 extends tslib_pibase {
+class tx_wtcart_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+{
 
-		// make configurations
+	// make configurations
 	public $prefixId = 'tx_wtcart_pi1';
 	public $scriptRelPath = 'pi1/class.tx_wtcart_pi1.php';
 	public $extKey = 'wt_cart';
-
 	public $gpvar = array();
 	public $taxes = array();
-
 	public $tmpl = array();
 	public $outerMarkerArray = array();
 	public $subpartMarkerArray = array();
@@ -55,33 +56,56 @@ class tx_wtcart_pi1 extends tslib_pibase {
 	 * @param array   $conf: The PlugIn configuration
 	 * @return  The content that is displayed on the website
 	 */
-	public function main($content, $conf) {
-			// make configurations
+	public function main($content, $conf)
+	{
+		// make configurations
 		$this->conf = $conf;
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 		$this->pi_USER_INT_obj = 1;
 
-			// create new instance for function
-		$this->div = t3lib_div::makeInstance('tx_wtcart_div');
-		$this->render = t3lib_div::makeInstance('Tx_WtCart_Utility_Renderer');
-		$this->dynamicMarkers = t3lib_div::makeInstance('tx_wtcart_dynamicmarkers');
+		// create new instance for function
+		$this->div = GeneralUtility::makeInstance('tx_wtcart_div');
+		$this->render = GeneralUtility::makeInstance('Tx_WtCart_Utility_Renderer');
+		$this->dynamicMarkers = GeneralUtility::makeInstance('tx_wtcart_dynamicmarkers');
 
 		// parse all taxclasses
-		$this->taxes = $this->div->parseTaxes($this->conf);
+		$this->taxes = $this->div->parseTaxes($this);
 
 		// in this version it is not possible mixing prices for products
 		$this->gpvar['isNetPrice'] = intval($this->conf['main.']['isNetCart']) == 0 ? FALSE : TRUE;
 
+		// parse all shippings
+		$shippings = $this->div->parseServices('Shipping', $this);
+
+		// parse all payments
+		$payments = $this->div->parseServices('Payment', $this);
+
+		// parse all specials
+		$specials = $this->div->parseServices('Special', $this);
+
+		//Read Flexform
+		$row = $this->pi_getRecord('tt_content', $this->cObj->data['uid']);
+		$flexformData = GeneralUtility::xml2array($row['pi_flexform']);
+//		$pid = $this->pi_getFFvalue($flexformData, 'pid', 'sDEF');
+		$checkout = $this->pi_getFFvalue($flexformData, 'checkout', 'sDEF');
+
+//		if ($clear > 0) {
+//			$this->conf['main.']['pid'] = $pid;
+//		}
+		if ($checkout > 0) {
+			$this->conf['main.']['checkout'] = $checkout;
+		}
+
 		/* Cart - Section */
 
-			// remove product from session
+		// remove product from session
 		if (isset($this->piVars['clear'])) {
 			$GLOBALS['TSFE']->fe_user->setKey('ses', 'wt_cart_' . $this->conf['main.']['pid'], array());
 			$GLOBALS['TSFE']->storeSessionData();
 		}
 
-			// read cart from session
+		// read cart from session
 		$session = $GLOBALS['TSFE']->fe_user->getKey('ses', 'wt_cart_' . $this->conf['main.']['pid']);
 		if ($session) {
 			$cart = unserialize($session);
@@ -91,15 +115,6 @@ class tx_wtcart_pi1 extends tslib_pibase {
 			$cart = new Tx_WtCart_Domain_Model_Cart($this->isNetCart);
 		}
 
-		// parse all shippings
-		$shippings = $this->div->parseServices('Shipping', $this, $cart);
-
-		// parse all payments
-		$payments = $this->div->parseServices('Payment', $this, $cart);
-
-		// parse all specials
-		$specials = $this->div->parseServices('Special', $this, $cart);
-
 		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['wt_cart']['changeCartAfterLoad']) {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['wt_cart']['changeCartAfterLoad'] as $funcRef) {
 				if ($funcRef) {
@@ -107,47 +122,48 @@ class tx_wtcart_pi1 extends tslib_pibase {
 						'cart' => &$cart
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
 
-			//read variables
+		//read variables
 		$this->div->getGPVars($this);
 
 		// in this version it is not possible mixing prices for products
 		$this->gpvar['isNetPrice'] = $cart->getIsNetCart();
 
 		if (TYPO3_DLOG) {
-			t3lib_div::devLog('pivars', $this->extKey, 0, $this->piVars);
-			t3lib_div::devLog('gpvars', $this->extKey, 0, $this->gpvar);
+			GeneralUtility::devLog('pivars', $this->extKey, 0, $this->piVars);
+			GeneralUtility::devLog('gpvars', $this->extKey, 0, $this->gpvar);
 		}
 
 		if (!$this->gpvar['multi']) {
-				// if content id (cid) is given, then product added from plugin
+			// if content id (cid) is given, then product added from plugin
 			if ($this->gpvar['cid']) {
-					// parse data from flexform
+				// parse data from flexform
 				$this->parseDataFromFlexform();
 			} elseif ($this->gpvar['puid']) {
-					// product added by own form
+				// product added by own form
 				if (!$this->gpvar['ownForm']) {
-					$this->div->getProductDetails($this->gpvar, $this->conf);
+					$this->div->getProductDetails($this->gpvar, $this);
 				} else {
 					$this->parseDataFromOwnForm();
 				}
 			}
 		}
 
-			// if no qty given set qty to 1
-		if ( empty($this->gpvar['qty']) ) {
+		// if no qty given set qty to 1
+		if (empty($this->gpvar['qty'])) {
 			$this->gpvar['qty'] = 1;
 		}
-			// change quantity of products
-		if ( isset($this->piVars['qty']) ) {
+		// change quantity of products
+		if (isset($this->piVars['qty'])) {
 			$cart->changeProductsQty($this->piVars['qty']);
 		}
 
-			// remove product from session
+
+		// remove product from session
 		if (isset($this->piVars['del'])) {
 			if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['wt_cart']['changeCartBeforeDeleteProduct']) {
 				foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['wt_cart']['changeCartBeforeDeleteProduct'] as $funcRef) {
@@ -157,7 +173,7 @@ class tx_wtcart_pi1 extends tslib_pibase {
 							'del' => $this->piVars['del']
 						);
 
-						t3lib_div::callUserFunction($funcRef, $params, $this);
+						GeneralUtility::callUserFunction($funcRef, $params, $this);
 					}
 				}
 			}
@@ -172,24 +188,24 @@ class tx_wtcart_pi1 extends tslib_pibase {
 							'del' => $this->piVars['del']
 						);
 
-						t3lib_div::callUserFunction($funcRef, $params, $this);
+						GeneralUtility::callUserFunction($funcRef, $params, $this);
 					}
 				}
 			}
 		}
 
 		if (isset($this->piVars['update_from_cart'])) {
-				// change shipping
+			// change shipping
 			if (isset($this->piVars['shipping'])) {
 				$cart->changeShipping($shippings[$this->piVars['shipping']]);
 			}
 
-				// change payment
+			// change payment
 			if (isset($this->piVars['payment'])) {
 				$cart->changePayment($payments[$this->piVars['payment']]);
 			}
 
-				// change special
+			// change special
 			foreach ($specials as $special) {
 				if (in_array($special->getId(), array_values($this->piVars['special']))) {
 					$cart->addSpecial($special);
@@ -199,17 +215,17 @@ class tx_wtcart_pi1 extends tslib_pibase {
 			}
 		}
 
-			// preset shipping, if not defined
+		// preset shipping, if not defined
 		if (!$cart->getShipping()) {
 			$cart->setShipping($shippings[$this->conf['shipping.']['preset']]);
 		}
 
-			// preset payment, if not defined
+		// preset payment, if not defined
 		if (!$cart->getPayment()) {
 			$cart->setPayment($payments[$this->conf['payment.']['preset']]);
 		}
 
-			// create new product
+		// create new product
 		if ($this->gpvar['multi']) {
 			foreach ($this->gpvar['multi'] as $single) {
 				$tmp = $this->gpvar;
@@ -217,13 +233,13 @@ class tx_wtcart_pi1 extends tslib_pibase {
 				$this->gpvar['isNetPrice'] = $cart->getIsNetCart();
 
 				if (TYPO3_DLOG) {
-					t3lib_div::devLog('multiple_before', $this->extKey, 0, $this->gpvar);
+					GeneralUtility::devLog('multiple_before', $this->extKey, 0, $this->gpvar);
 				}
 
 				$this->parseDataToProductToCart($cart);
 
 				if (TYPO3_DLOG) {
-					t3lib_div::devLog('multiple_after', $this->extKey, 0, $this->gpvar);
+					GeneralUtility::devLog('multiple_after', $this->extKey, 0, $this->gpvar);
 				}
 
 				$this->gpvar = $tmp;
@@ -245,7 +261,7 @@ class tx_wtcart_pi1 extends tslib_pibase {
 								'newProduct' => &$newProduct
 							);
 
-							t3lib_div::callUserFunction($funcRef, $params, $this);
+							GeneralUtility::callUserFunction($funcRef, $params, $this);
 						}
 					}
 				}
@@ -266,7 +282,7 @@ class tx_wtcart_pi1 extends tslib_pibase {
 						'cart' => &$cart
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
@@ -278,21 +294,20 @@ class tx_wtcart_pi1 extends tslib_pibase {
 						'cart' => &$cart
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
-
-			// save cart to session
+		// save cart to session
 		$GLOBALS['TSFE']->fe_user->setKey('ses', 'wt_cart_' . $this->conf['main.']['pid'], serialize($cart));
 		$GLOBALS['TSFE']->storeSessionData();
 
 		/* Rendering - Section */
 
-			// load html-templates
+		// load html-templates
 		$this->render->loadTemplate($this);
 
-			// there are products in the session
+		// there are products in the session
 		if ($cart->getCount() > 0) {
 			$this->subpartMarkerArray['###CONTENT###'] = $this->render->renderProductList($cart, $this);
 			$this->subpartMarkerArray['###CONTENT###'] .= '<input type="hidden" name="tx_wtcart_pi1[update_from_cart]" value="1">';
@@ -317,16 +332,18 @@ class tx_wtcart_pi1 extends tslib_pibase {
 
 			$this->render->renderBackPageLink($this);
 
+			$this->render->renderCheckoutLink($this);
+
 			$this->render->renderAdditional($cart, $this);
 		} else {
 			$this->render->renderEmptyCart($this);
 		}
 
-			// Get html template
+		// Get html template
 		$this->content = $this->cObj->substituteMarkerArrayCached($this->tmpl['all'], $this->outerMarkerArray, $this->subpartMarkerArray);
-			// Fill dynamic locallang or typoscript markers
+		// Fill dynamic locallang or typoscript markers
 		$this->content = $this->dynamicMarkers->main($this->content, $this);
-			// Finally clear not filled markers
+		// Finally clear not filled markers
 		$this->content = preg_replace('|###.*?###|i', '', $this->content);
 		return $this->pi_wrapInBaseClass($this->content);
 	}
@@ -338,14 +355,15 @@ class tx_wtcart_pi1 extends tslib_pibase {
 	 * @param int $optionId
 	 * @return string
 	 */
-	private function getPriceForOption($type, $optionId) {
+	private function getPriceForOption($type, $optionId)
+	{
 		$optionIds = $this->conf[$type . '.']['options.'][$optionId . '.'];
 
 		$freeFrom = $optionIds['free_from'];
 		$freeUntil = $optionIds['free_until'];
 
 		if ((isset($freeFrom) && (floatval($freeFrom) <= $this->cart['grossNoService'])) ||
-				(isset($freeUntil) && (floatval($freeUntil) >= $this->cart['grossNoService']))
+			(isset($freeUntil) && (floatval($freeUntil) >= $this->cart['grossNoService']))
 		) {
 			return '0.00';
 		}
@@ -390,12 +408,13 @@ class tx_wtcart_pi1 extends tslib_pibase {
 	 * @param int $optionId
 	 * @return int
 	 */
-	private function checkOptionIsNotAvailable($type, $optionId) {
+	private function checkOptionIsNotAvailable($type, $optionId)
+	{
 		if ((isset($this->conf[$type . '.']['options.'][$optionId . '.']['available_from']) && (round(floatval($this->conf[$type . '.']['options.'][$optionId . '.']['available_from']), 2) > round($this->cart['grossNoService'], 2))) || (isset($this->conf[$type . '.']['options.'][$optionId . '.']['available_until']) && (round(floatval($this->conf[$type . '.']['options.'][$optionId . '.']['available_until']), 2) < round($this->cart['grossNoService'], 2)))) {
-				// check: fallback is given
+			// check: fallback is given
 			if (isset($this->conf[$type . '.']['options.'][$optionId . '.']['fallback'])) {
 				$fallback = $this->conf[$type . '.']['options.'][$optionId . '.']['fallback'];
-					// check: fallback is defined; the availability of fallback will not tested yet
+				// check: fallback is defined; the availability of fallback will not tested yet
 				if (isset($this->conf[$type . '.']['options.'][$fallback . '.'])) {
 					$newoptionId = intval($fallback);
 				} else {
@@ -413,9 +432,10 @@ class tx_wtcart_pi1 extends tslib_pibase {
 	/**
 	 * @return null
 	 */
-	private function parseDataFromFlexform() {
+	private function parseDataFromFlexform()
+	{
 		$row = $this->pi_getRecord('tt_content', $this->gpvar['cid']);
-		$flexformData = t3lib_div::xml2array($row['pi_flexform']);
+		$flexformData = GeneralUtility::xml2array($row['pi_flexform']);
 
 		$gpvarArr = array('puid', 'sku', 'title', 'price', 'taxclass');
 		foreach ($gpvarArr as $gpvarVal) {
@@ -425,7 +445,7 @@ class tx_wtcart_pi1 extends tslib_pibase {
 		$this->gpvar['qty'] = intval($this->cObj->cObjGetSingle($this->conf['settings.']['qty'], $this->conf['settings.']['qty.']));
 
 		if (TYPO3_DLOG) {
-			t3lib_div::devLog('gpvars after getRecord', $this->extKey, 0, $this->gpvar);
+			GeneralUtility::devLog('gpvars after getRecord', $this->extKey, 0, $this->gpvar);
 		}
 
 		$attributes = explode("\n", $this->pi_getFFvalue($flexformData, 'attributes', 'sDEF'));
@@ -452,7 +472,8 @@ class tx_wtcart_pi1 extends tslib_pibase {
 	/**
 	 * @return null
 	 */
-	private function parseDataFromOwnForm() {
+	private function parseDataFromOwnForm()
+	{
 		$gpvarArr = array(
 			'sku', 'title', 'price', 'qty', 'taxclass',
 			'service_attribute_1', 'service_attribute_2', 'service_attribute_3'
@@ -460,18 +481,15 @@ class tx_wtcart_pi1 extends tslib_pibase {
 		foreach ($gpvarArr as $gpvarVal) {
 			switch ($gpvarVal) {
 				case 'qty':
-					$this->gpvar[$gpvarVal] =
-							intval($this->cObj->cObjGetSingle($this->conf['settings.'][$gpvarVal], $this->conf['settings.'][$gpvarVal . '.']));
+					$this->gpvar[$gpvarVal] = intval($this->cObj->cObjGetSingle($this->conf['settings.'][$gpvarVal], $this->conf['settings.'][$gpvarVal . '.']));
 					break;
 				case 'service_attribute_1':
 				case 'service_attribute_2':
 				case 'service_attribute_3':
-					$this->gpvar[$gpvarVal] =
-							floatval($this->cObj->cObjGetSingle($this->conf['settings.'][$gpvarVal], $this->conf['settings.'][$gpvarVal . '.']));
+					$this->gpvar[$gpvarVal] = floatval($this->cObj->cObjGetSingle($this->conf['settings.'][$gpvarVal], $this->conf['settings.'][$gpvarVal . '.']));
 					break;
 				default:
-					$this->gpvar[$gpvarVal] =
-							$this->cObj->cObjGetSingle($this->conf['settings.'][$gpvarVal], $this->conf['settings.'][$gpvarVal . '.']);
+					$this->gpvar[$gpvarVal] = $this->cObj->cObjGetSingle($this->conf['settings.'][$gpvarVal], $this->conf['settings.'][$gpvarVal . '.']);
 					break;
 			}
 		}
@@ -479,10 +497,10 @@ class tx_wtcart_pi1 extends tslib_pibase {
 		return NULL;
 	}
 
-	private function parseDataToProductToCart(&$cart) {
-		if (intval($this->gpvar['qty']) > 0 ) {
-
-			$this->div->getProductDetails($this->gpvar, $this->conf);
+	private function parseDataToProductToCart(&$cart)
+	{
+		if (intval($this->gpvar['qty']) > 0) {
+			$this->div->getProductDetails($this->gpvar, $this);
 			// create new product
 			if ($this->gpvar['puid']) {
 				$newProduct = $this->div->createProduct($this);
@@ -500,7 +518,7 @@ class tx_wtcart_pi1 extends tslib_pibase {
 								'newProduct' => &$newProduct
 							);
 
-							t3lib_div::callUserFunction($funcRef, $params, $this);
+							GeneralUtility::callUserFunction($funcRef, $params, $this);
 						}
 					}
 				}
@@ -515,9 +533,25 @@ class tx_wtcart_pi1 extends tslib_pibase {
 
 		return 1;
 	}
+
+	public function pi_loadLL()
+	{
+		parent::pi_loadLL();
+
+		if (!$this->additional_locallang_include) {
+			$basePath = ExtensionManagementUtility::extPath(cyz_wtcart_ext) . 'Resources/Private/Language/locallang.xml';
+			$tempLOCAL_LANG = GeneralUtility::readLLfile($basePath, $this->LLkey);
+			//array_merge with new array first, so a value in locallang (or typoscript) can overwrite values from ../locallang_db
+			$this->LOCAL_LANG = array_merge_recursive($tempLOCAL_LANG, is_array($this->LOCAL_LANG) ? $this->LOCAL_LANG : array());
+			if ($this->altLLkey) {
+				$tempLOCAL_LANG = GeneralUtility::readLLfile($basePath, $this->altLLkey);
+				$this->LOCAL_LANG = array_merge_recursive($tempLOCAL_LANG, is_array($this->LOCAL_LANG) ? $this->LOCAL_LANG : array());
+			}
+			$this->additional_locallang_include = true;
+		}
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart/pi1/class.tx_wtcart_pi1.php']) {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/wt_cart/pi1/class.tx_wtcart_pi1.php']);
 }
-?>

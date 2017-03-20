@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,7 +22,7 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
 
 /**
  * Plugin 'Cart' for the 'wt_cart' extension.
@@ -32,7 +32,9 @@
  * @subpackage    tx_wtcart
  * @version    1.5.0
  */
-class Tx_WtCart_Domain_Model_Extra {
+class Tx_WtCart_Domain_Model_Extra
+{
+
 	/**
 	 * @var integer
 	 */
@@ -79,11 +81,12 @@ class Tx_WtCart_Domain_Model_Extra {
 	 * @internal param $gross
 	 * @return \Tx_WtCart_Domain_Model_Extra
 	 */
-	public function __construct($id, $condition, $price, Tx_WtCart_Domain_Model_Tax $taxclass, $isNetPrice = FALSE) {
+	public function __construct($id, $condition, $price, Tx_WtCart_Domain_Model_Tax $taxclass, $isNetPrice = FALSE)
+	{
 		$this->id = $id;
 		$this->condition = $condition;
 		$this->taxClass = $taxclass;
-		$this->price = str_replace($LocaleInfo["mon_decimal_point"] , ".", $price);
+		$this->price = str_replace($LocaleInfo["mon_decimal_point"], ".", $price);
 
 		$this->isNetPrice = $isNetPrice;
 
@@ -93,28 +96,32 @@ class Tx_WtCart_Domain_Model_Extra {
 	/**
 	 * @param boolean
 	 */
-	public function setIsNetPrice($isNetPrice) {
+	public function setIsNetPrice($isNetPrice)
+	{
 		$this->isNettoPrice = $isNetPrice;
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function getIsNetPrice() {
+	public function getIsNetPrice()
+	{
 		return $this->isNetPrice;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getId() {
+	public function getId()
+	{
 		return $this->id;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getCondition() {
+	public function getCondition()
+	{
 		return $this->condition;
 	}
 
@@ -122,7 +129,8 @@ class Tx_WtCart_Domain_Model_Extra {
 	 * @param $condition
 	 * @return bool
 	 */
-	public function leq($condition) {
+	public function leq($condition)
+	{
 		if ($condition < $this->condition) {
 			return FALSE;
 		}
@@ -133,14 +141,16 @@ class Tx_WtCart_Domain_Model_Extra {
 	/**
 	 * @return float
 	 */
-	public function getPrice() {
+	public function getPrice()
+	{
 		return $this->price;
 	}
 
 	/**
 	 * @param $price
 	 */
-	public function setPrice($price) {
+	public function setPrice($price)
+	{
 		$this->price = $price;
 
 		$this->reCalc();
@@ -149,7 +159,8 @@ class Tx_WtCart_Domain_Model_Extra {
 	/**
 	 * @return float
 	 */
-	public function getGross() {
+	public function getGross()
+	{
 		$this->calcGross();
 		return $this->gross;
 	}
@@ -157,7 +168,8 @@ class Tx_WtCart_Domain_Model_Extra {
 	/**
 	 * @return float
 	 */
-	public function getNet() {
+	public function getNet()
+	{
 		$this->calcNet();
 		return $this->net;
 	}
@@ -165,7 +177,8 @@ class Tx_WtCart_Domain_Model_Extra {
 	/**
 	 * @return array
 	 */
-	public function getTax() {
+	public function getTax()
+	{
 		$this->calcTax();
 		return array('taxclassid' => $this->taxClass->getId(), 'tax' => $this->tax);
 	}
@@ -173,14 +186,16 @@ class Tx_WtCart_Domain_Model_Extra {
 	/**
 	 * @return Tx_WtCart_Domain_Model_Tax
 	 */
-	public function getTaxClass() {
+	public function getTaxClass()
+	{
 		return $this->taxClass;
 	}
 
 	/**
 	 *
 	 */
-	private function calcGross() {
+	private function calcGross()
+	{
 		if ($this->isNetPrice == FALSE) {
 			$this->gross = $this->price;
 		} else {
@@ -192,7 +207,8 @@ class Tx_WtCart_Domain_Model_Extra {
 	/**
 	 *
 	 */
-	private function calcTax() {
+	private function calcTax()
+	{
 		if ($this->isNetPrice == FALSE) {
 			$this->tax = ($this->gross / (1 + $this->taxClass->getCalc())) * ($this->taxClass->getCalc());
 		} else {
@@ -203,19 +219,21 @@ class Tx_WtCart_Domain_Model_Extra {
 	/**
 	 *
 	 */
-	private function calcNet() {
+	private function calcNet()
+	{
 		if ($this->isNetPrice == TRUE) {
 			$this->net = $this->price;
 		} else {
 			$this->calcGross();
-			$this->net =  $this->gross - $this->tax;
+			$this->net = $this->gross - $this->tax;
 		}
 	}
 
 	/**
 	 *
 	 */
-	private function reCalc() {
+	private function reCalc()
+	{
 		if ($this->isNetPrice == FALSE) {
 			$this->calcGross();
 			$this->calcTax();
@@ -227,5 +245,3 @@ class Tx_WtCart_Domain_Model_Extra {
 		}
 	}
 }
-
-?>

@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,13 +22,13 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
 
-if (!defined ('PATH_typo3conf'))	 die ('Could not access this script directly!');
+if (!defined('PATH_typo3conf')) {
+	die('Could not access this script directly!');
+}
 
 define('TYPO3_DLOG', $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG']);
-
-require_once(PATH_site . 'typo3/sysext/css_styled_content/pi1/class.tx_cssstyledcontent_pi1.php');
 
 /**
  * Plugin 'Cart' for the 'wt_cart' extension.
@@ -38,46 +38,42 @@ require_once(PATH_site . 'typo3/sysext/css_styled_content/pi1/class.tx_cssstyled
  * @subpackage	tx_wtcart
  * @version	1.5.0
  */
-
-class addProduct extends tslib_pibase {
+class addProduct extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+{
 
 	// make configurations
 	public $prefixId = 'tx_wtcart_eid';
 	public $scriptRelPath = 'eid/addProduct.php';
 	public $extKey = 'wt_cart';
-
 	public $gpvar = array();
 	public $taxes = array();
 
-	function main() {
+	public function main()
+	{
+		// eID specific initialization of user and database
+		\TYPO3\CMS\Frontend\Utility\EidUtility::initFeUser();
+		\TYPO3\CMS\Frontend\Utility\EidUtility::connectDB();
+		$pid = htmlentities(\TYPO3\CMS\Core\Utility\GeneralUtility::_POST('cartID'));
+
 		global $TYPO3_CONF_VARS;
-
-			// eID specific initialization of user and database
-		tslib_eidtools::initFeUser();
-		tslib_eidtools::connectDB();
-		$pid = htmlentities(t3lib_div::_POST('cartID'));
-
-			// initialize TSFE
-		if (!class_exists('tslib_pibase')) require_once(PATH_tslib . 'class.tslib_pibase.php');
-		$temp_TSFEclassName = t3lib_div::makeInstance('tslib_fe');
-		$GLOBALS['TSFE'] = new $temp_TSFEclassName($TYPO3_CONF_VARS, $pid, 0, true);
+		$GLOBALS['TSFE'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController', $TYPO3_CONF_VARS, $pid, 0);
 		$GLOBALS['TSFE']->initFEuser();
 		$GLOBALS['TSFE']->determineId();
 		$GLOBALS['TSFE']->getCompressedTCarray();
 		$GLOBALS['TSFE']->initTemplate();
 		$GLOBALS['TSFE']->getConfigArray();
 
-		$this->cObj = t3lib_div::makeInstance('tslib_cObj');
+		$this->cObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer');
 		$this->conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
 
-			// create new instance for function
-		$this->div = t3lib_div::makeInstance('tx_wtcart_div');
+		// create new instance for function
+		$this->div = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_wtcart_div');
 
 		// in this version it is not possible mixing prices for products
 		$this->gpvar['isNetPrice'] = intval($this->conf['main.']['isNetCart']) == 0 ? FALSE : TRUE;
 
-			// parse all taxclasses
-		$this->taxes = $this->div->parseTaxes($this->conf);
+		// parse all taxclasses
+		$this->taxes = $this->div->parseTaxes($this);
 
 		/* Cart - Section */
 
@@ -91,16 +87,16 @@ class addProduct extends tslib_pibase {
 
 			$cart = new Tx_WtCart_Domain_Model_Cart($this->isNetCart);
 
-				// preset shipping for new cart
+			// preset shipping for new cart
 			if (!$cart->getShipping()) {
-					// parse all shippings
+				// parse all shippings
 				$shippings = $this->div->parseServices('Shipping', $this);
 				$cart->setShipping($shippings[$this->conf['shipping.']['preset']]);
 			}
 
-				// preset payment for new cart
+			// preset payment for new cart
 			if (!$cart->getPayment()) {
-					// parse all payments
+				// parse all payments
 				$payments = $this->div->parseServices('Payment', $this);
 				$cart->setPayment($payments[$this->conf['payment.']['preset']]);
 			}
@@ -113,32 +109,28 @@ class addProduct extends tslib_pibase {
 						'cart' => &$cart
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					\TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
 
-			//read variables
+		//read variables
 		$this->div->getGPVars($this);
 
 		// in this version it is not possible mixing prices for products
 		$this->gpvar['isNetPrice'] = $cart->getIsNetCart();
 
 		if (TYPO3_DLOG) {
-			t3lib_div::devLog('pivars', $this->extKey, 0, $this->piVars);
-			t3lib_div::devLog('gpvars', $this->extKey, 0, $this->gpvar);
+			\TYPO3\CMS\Core\Utility\GeneralUtility::devLog('pivars', $this->extKey, 0, $this->piVars);
+			\TYPO3\CMS\Core\Utility\GeneralUtility::devLog('gpvars', $this->extKey, 0, $this->gpvar);
 		}
 
 		$count = 0;
 		if ($this->gpvar['multi']) {
 			foreach ($this->gpvar['multi'] as $single) {
-				$tmp = $this->gpvar;
-
 				$this->gpvar = $single;
 				$this->gpvar['isNetPrice'] = $cart->getIsNetCart();
 				$count += $this->parseDataToProductToCart($cart);
-
-				$this->gpvar = $tmp;
 			}
 		} else {
 			$count += $this->parseDataToProductToCart($cart);
@@ -151,7 +143,7 @@ class addProduct extends tslib_pibase {
 						'newProduct' => &$newProduct
 					);
 
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					\TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
@@ -169,7 +161,8 @@ class addProduct extends tslib_pibase {
 		}
 	}
 
-	private function parseDataToProductToCart(&$cart) {
+	private function parseDataToProductToCart(&$cart)
+	{
 		// if content id (cid) is given, then product added from plugin
 		if ($this->gpvar['cid']) {
 			// parse data from flexform
@@ -177,7 +170,7 @@ class addProduct extends tslib_pibase {
 		} elseif ($this->gpvar['puid']) {
 			// product added by own form
 			if (!$this->gpvar['ownForm']) {
-				$this->div->getProductDetails($this->gpvar, $this->conf);
+				$this->div->getProductDetails($this->gpvar, $this);
 			} else {
 				$this->parseDataFromOwnForm();
 			}
@@ -206,7 +199,7 @@ class addProduct extends tslib_pibase {
 							'newProduct' => &$newProduct
 						);
 
-						t3lib_div::callUserFunction($funcRef, $params, $this);
+						\TYPO3\CMS\Core\Utility\GeneralUtility::callUserFunction($funcRef, $params, $this);
 					}
 				}
 			}
@@ -220,5 +213,5 @@ class addProduct extends tslib_pibase {
 	}
 }
 
-$output = t3lib_div::makeInstance('addProduct');
+$output = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('addProduct');
 $output->main();

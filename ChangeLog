@@ -1,3 +1,10 @@
+4.0.0
+	Ephraim Härer <ephraim.haerer@renolit.com>
+
+	* Release of wt_cart 4.0.0
+	* [TASK] - TYPO3 7.6 LTS compatibility
+
+
 3.0.0
 	wt_cart Development Team <info@wt-cart.com>
 
@@ -10,6 +17,7 @@
 	* [BUGFIX] #51237 - No quantity given
 	* [BUGFIX] #42764 - Calculation of shipping cost in value ranges and free_from
 	* [TASK] - Update manual
+
 
 2.1.0
 	wt_cart Development Team <info@wt-cart.com>

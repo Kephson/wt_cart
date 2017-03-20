@@ -1,8 +1,8 @@
 <?php
-
-/***************************************************************
+/* * *************************************************************
  *  Copyright notice
  *
+ *  (c) 2017 Ephraim Härer <ephraim.haerer@renolit.com>, RENOLIT SE
  *  (c) 2011-2014 - wt_cart Development Team <info@wt-cart.com>
  *
  *  All rights reserved
@@ -22,7 +22,8 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 define('TYPO3_DLOG', $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG']);
 
@@ -33,38 +34,40 @@ define('TYPO3_DLOG', $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG']);
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_WtCart_Utility_Cart {
+class Tx_WtCart_Utility_Cart
+{
 
 	/**
 	 * @param $cart Tx_WtCart_Domain_Model_Cart
 	 */
-	protected function setOrderNumber( $cart ) {
+	protected function setOrderNumber($cart)
+	{
 		$conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
 
 		if ($cart) {
 			if (!$cart->getOrderNumber()) {
-				$registry =  t3lib_div::makeInstance('t3lib_Registry');
-				$orderNumber =  $registry->get( 'tx_wtcart', 'lastOrder_'.$conf['main.']['pid'] );
+				$registry = GeneralUtility::makeInstance('TYPO3\CMS\Core\Registry');
+				$orderNumber = $registry->get('tx_wtcart', 'lastOrder_' . $conf['main.']['pid']);
 				if ($orderNumber) {
 					$orderNumber += 1;
 				} else {
 					$orderNumber = 1;
 				}
-				$registry->set('tx_wtcart', 'lastOrder_'.$conf['main.']['pid'],  $orderNumber);
+				$registry->set('tx_wtcart', 'lastOrder_' . $conf['main.']['pid'], $orderNumber);
 
 				$orderNumberConf = $conf['settings.']['fields.'];
-				$this->cObj = t3lib_div::makeInstance( 'tslib_cObj' );
-				$this->cObj->start( array( 'ordernumber' => $orderNumber ), $orderNumberConf['ordernumber'] );
-				$orderNumber = $this->cObj->cObjGetSingle( $orderNumberConf['ordernumber'], $orderNumberConf['ordernumber.'] );
+				$this->cObj = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer');
+				$this->cObj->start(array('ordernumber' => $orderNumber), $orderNumberConf['ordernumber']);
+				$orderNumber = $this->cObj->cObjGetSingle($orderNumberConf['ordernumber'], $orderNumberConf['ordernumber.']);
 
 				$cart->setOrderNumber($orderNumber);
 			}
 
 			if (TYPO3_DLOG) {
-				t3lib_div::devLog( 'ordernumber', 'wt_cart', 0, array( $cart->getOrderNumber() ) );
+				GeneralUtility::devLog('ordernumber', 'wt_cart', 0, array($cart->getOrderNumber()));
 			}
 
-			$GLOBALS['TSFE']->fe_user->setKey( 'ses', 'wt_cart_' . $conf['main.']['pid'], serialize( $cart ) );
+			$GLOBALS['TSFE']->fe_user->setKey('ses', 'wt_cart_' . $conf['main.']['pid'], serialize($cart));
 			$GLOBALS['TSFE']->storeSessionData();
 		}
 	}
@@ -72,33 +75,34 @@ class Tx_WtCart_Utility_Cart {
 	/**
 	 * @param $cart Tx_WtCart_Domain_Model_Cart
 	 */
-	protected function setInvoiceNumber( $cart ) {
+	protected function setInvoiceNumber($cart)
+	{
 		$conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
 
-		if ( $cart ) {
-			if ( !$cart->getInvoiceNumber() ) {
-				$registry =  t3lib_div::makeInstance('t3lib_Registry');
-				$invoiceNumber =  $registry->get( 'tx_wtcart', 'lastInvoice_'.$conf['main.']['pid'] );
-				if ( $invoiceNumber ) {
+		if ($cart) {
+			if (!$cart->getInvoiceNumber()) {
+				$registry = GeneralUtility::makeInstance('TYPO3\CMS\Core\Registry');
+				$invoiceNumber = $registry->get('tx_wtcart', 'lastInvoice_' . $conf['main.']['pid']);
+				if ($invoiceNumber) {
 					$invoiceNumber += 1;
 				} else {
 					$invoiceNumber = 1;
 				}
-				$registry->set('tx_wtcart', 'lastInvoice_'.$conf['main.']['pid'],  $invoiceNumber);
+				$registry->set('tx_wtcart', 'lastInvoice_' . $conf['main.']['pid'], $invoiceNumber);
 
 				$invoiceNumberConf = $conf['settings.']['fields.'];
-				$this->cObj = t3lib_div::makeInstance( 'tslib_cObj' );
-				$this->cObj->start( array( 'invoicenumber' => $invoiceNumber ), $invoiceNumberConf['invoicenumber'] );
-				$invoiceNumber = $this->cObj->cObjGetSingle( $invoiceNumberConf['invoicenumber'], $invoiceNumberConf['invoicenumber.'] );
+				$this->cObj = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer');
+				$this->cObj->start(array('invoicenumber' => $invoiceNumber), $invoiceNumberConf['invoicenumber']);
+				$invoiceNumber = $this->cObj->cObjGetSingle($invoiceNumberConf['invoicenumber'], $invoiceNumberConf['invoicenumber.']);
 
-				$cart->setInvoiceNumber( $invoiceNumber );
+				$cart->setInvoiceNumber($invoiceNumber);
 			}
 
 			if (TYPO3_DLOG) {
-				t3lib_div::devLog( 'invoicenumber', 'wt_cart', 0, array( $cart->getInvoiceNumber() ) );
+				GeneralUtility::devLog('invoicenumber', 'wt_cart', 0, array($cart->getInvoiceNumber()));
 			}
 
-			$GLOBALS['TSFE']->fe_user->setKey( 'ses', 'wt_cart_' . $conf['main.']['pid'], serialize( $cart ) );
+			$GLOBALS['TSFE']->fe_user->setKey('ses', 'wt_cart_' . $conf['main.']['pid'], serialize($cart));
 			$GLOBALS['TSFE']->storeSessionData();
 		}
 	}
@@ -106,17 +110,37 @@ class Tx_WtCart_Utility_Cart {
 	/**
 	 * @param \In2code\Powermail\Domain\Model\Mail $mail
 	 * @param string $hash
-	 * @param $obj
+	 * @param integer|object $obj
 	 */
-	public function clearSession($mail, $hash = NULL, $obj) {
+	public function clearSession($mail, $hash = NULL, $obj)
+	{
 		$conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
 
 		/**
 		 * @var $cart Tx_WtCart_Domain_Model_Cart
 		 */
-		$cart = unserialize( $GLOBALS['TSFE']->fe_user->getKey( 'ses', 'wt_cart_' . $conf['main.']['pid'] ) );
+		if ((int) $this->conf['main.']['pid'] < 1) {
+			$pid = 1;
+		} else {
+			$pid = $this->conf['main.']['pid'];
+		}
 
-		if ($conf['powermailContent.']['uid'] > 0 && intval($conf['powermailContent.']['uid']) == $obj->cObj->data['uid']) {
+		$session = $GLOBALS['TSFE']->fe_user->getKey('ses', 'wt_cart_' . $pid);
+		if ($session) {
+			$cart = unserialize($session);
+		} else {
+			$this->isNetCart = intval($this->conf['main.']['isNetCart']) == 0 ? FALSE : TRUE;
+
+			$cart = new Tx_WtCart_Domain_Model_Cart($this->isNetCart);
+		}
+
+		// given as object or integer???
+		if (is_object($obj)) {
+			$objUid = (int) $obj->cObj->data['uid'];
+		} else {
+			$objUid = (int) $obj;
+		}
+		if ($conf['powermailContent.']['uid'] > 0 /* && intval($conf['powermailContent.']['uid']) === $objUid */) {
 			$errors = array();
 
 			$params = array(
@@ -124,13 +148,19 @@ class Tx_WtCart_Utility_Cart {
 				'mail' => &$mail,
 				'errors' => &$errors
 			);
-			$this->callHook( 'beforeClearSession', $params );
+			$this->callHook('beforeClearSession', $params);
 		}
 
 		$this->removeAllProductsFromSession();
 
-		$cart = unserialize( $GLOBALS['TSFE']->fe_user->getKey( 'ses', 'wt_cart_' . $conf['main.']['pid'] ) );
+		$session = $GLOBALS['TSFE']->fe_user->getKey('ses', 'wt_cart_' . $pid);
+		if ($session) {
+			$cart = unserialize($session);
+		} else {
+			$this->isNetCart = intval($this->conf['main.']['isNetCart']) == 0 ? FALSE : TRUE;
 
+			$cart = new Tx_WtCart_Domain_Model_Cart($this->isNetCart);
+		}
 		if ($conf['powermailContent.']['uid'] > 0 && intval($conf['powermailContent.']['uid']) == $obj->cObj->data['uid']) {
 			$errors = array();
 
@@ -139,25 +169,32 @@ class Tx_WtCart_Utility_Cart {
 				'mail' => &$mail,
 				'errors' => &$errors
 			);
-			$this->callHook( 'afterClearSession', $params );
+			$this->callHook('afterClearSession', $params);
 		}
 	}
 
 	/**
 	 * @param \In2code\Powermail\Domain\Model\Mail $mail
 	 * @param $hash
-	 * @param int $objUid
-	 * @param array $objSettings
+	 * @param $obj
 	 */
-	public function slotCreateActionBeforeRenderView($mail, $hash, $objUid, $objSettings) {
+	public function slotCreateActionBeforeRenderView($mail, $hash, $obj)
+	{
 		$conf = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.'];
 
 		/**
 		 * @var $cart Tx_WtCart_Domain_Model_Cart
 		 */
-		$cart = unserialize( $GLOBALS['TSFE']->fe_user->getKey( 'ses', 'wt_cart_' . $conf['main.']['pid'] ) );
+		$session = $GLOBALS['TSFE']->fe_user->getKey('ses', 'wt_cart_' . $this->conf['main.']['pid']);
+		if ($session) {
+			$cart = unserialize($session);
+		} else {
+			$this->isNetCart = intval($this->conf['main.']['isNetCart']) == 0 ? FALSE : TRUE;
 
-		if ($conf['powermailContent.']['uid'] > 0 && intval($conf['powermailContent.']['uid']) == $objUid) {
+			$cart = new Tx_WtCart_Domain_Model_Cart($this->isNetCart);
+		}
+
+		if ($conf['powermailContent.']['uid'] > 0 && intval($conf['powermailContent.']['uid']) == $obj->cObj->data['uid']) {
 
 			$files = array();
 			$errors = array();
@@ -170,38 +207,37 @@ class Tx_WtCart_Utility_Cart {
 				'skipInvoice' => FALSE
 			);
 
-			$this->callHook( 'orderSubmitted', $params );
+			$this->callHook('orderSubmitted', $params);
 
-			$this->setOrderNumber( $cart );
+			$this->setOrderNumber($cart);
 
-			$this->callHook( 'afterSetOrderNumber', $params );
+			$this->callHook('afterSetOrderNumber', $params);
 
-			if ( $cart->getPayment() ) {
-				$paymentService = $cart->getPayment()->getAdditional( 'payment_service' );
-				if ( $paymentService ) {
+			if ($cart->getPayment()) {
+				$paymentService = $cart->getPayment()->getAdditional('payment_service');
+				if ($paymentService) {
 					$paymentServiceHook = 'callPaymentGateway' . ucwords(strtolower($paymentService));
-					$this->callHook( $paymentServiceHook, $params );
+					$this->callHook($paymentServiceHook, $params);
 				}
 			}
 
-			if ( $params['skipInvoice'] == FALSE ) {
-				$this->setInvoiceNumber( $cart );
+			if ($params['skipInvoice'] == FALSE) {
+				$this->setInvoiceNumber($cart);
 
-				$this->callHook( 'afterSetInvoiceNumber', $params );
+				$this->callHook('afterSetInvoiceNumber', $params);
 			}
 
-			if ( $params['preventEmailToSender'] == TRUE ) {
-				$objSettings['sender']['enable'] = 0;
+			if ($params['preventEmailToSender'] == TRUE) {
+				$obj->settings['sender']['enable'] = 0;
 			}
 
-			if ( $params['preventEmailToReceiver'] == TRUE ) {
-				$objSettings['receiver']['enable'] = 0;
+			if ($params['preventEmailToReceiver'] == TRUE) {
+				$obj->settings['receiver']['enable'] = 0;
 			}
 
-			$this->callHook( 'beforeAddAttachmentToMail', $params );
+			$this->callHook('beforeAddAttachmentToMail', $params);
 
-			$this->addAttachments( $params );
-
+			$this->addAttachments($params);
 		}
 		return;
 	}
@@ -210,11 +246,12 @@ class Tx_WtCart_Utility_Cart {
 	 * @param string $hookName
 	 * @param array $params
 	 */
-	protected function callHook( $hookName, &$params ) {
+	protected function callHook($hookName, &$params)
+	{
 		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['wt_cart'][$hookName]) {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['wt_cart'][$hookName] as $funcRef) {
 				if ($funcRef) {
-					t3lib_div::callUserFunction($funcRef, $params, $this);
+					GeneralUtility::callUserFunction($funcRef, $params, $this);
 				}
 			}
 		}
@@ -223,8 +260,9 @@ class Tx_WtCart_Utility_Cart {
 	/**
 	 * @param array $params
 	 */
-	protected function addAttachments( &$params ) {
-		if( !empty( $params['files'] ) ) {
+	protected function addAttachments(&$params)
+	{
+		if (!empty($params['files'])) {
 			/**
 			 * @see powermail/Classes/Utility/Div.php:431
 			 */
@@ -247,14 +285,11 @@ class Tx_WtCart_Utility_Cart {
 	 *
 	 * @return  void
 	 */
-	public function removeAllProductsFromSession() {
-		$isNetCart = intval($GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.']['main.']['isNetCart']) == 0 ? FALSE : TRUE;
-		$cart = new Tx_WtCart_Domain_Model_Cart($isNetCart);
-
+	public function removeAllProductsFromSession()
+	{
+		//TODO: check for $errorNumber to be Zero*/
 		$pid = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_wtcart_pi1.']['main.']['pid'];
-		$GLOBALS['TSFE']->fe_user->setKey('ses', 'wt_cart_' . $pid, serialize($cart));
+		$GLOBALS['TSFE']->fe_user->setKey('ses', 'wt_cart_' . $pid, array());
 		$GLOBALS['TSFE']->storeSessionData();
 	}
 }
-
-?>

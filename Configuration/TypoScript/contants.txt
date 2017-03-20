@@ -1,7 +1,0 @@
-plugin.tx_wtcart {
-  view {
-    templateRootPath = EXT:wt_cart/Resources/Private/Templates/
-    partialRootPath = EXT:wt_cart/Resources/Private/Partials/
-    layoutRootPath = EXT:wt_cart/Resources/Private/Layouts/
-  }
-}
