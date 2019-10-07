@@ -1,0 +1,31 @@
+{
+  "name": "ehaerer/wt-cart",
+  "type": "typo3-cms-extension",
+  "description": "Adds shopping cart(s) to your TYPO3 installation and utilizes powermail for checkout",
+  "keywords": [
+    "TYPO3 CMS",
+    "Cart"
+  ],
+  "homepage": "https://github.com/extcode/wt_cart",
+  "authors": [
+    {
+      "name": "wt_cart Development Team",
+      "email": "info@wt-cart.com",
+      "role": "Developer"
+    },
+    {
+      "name": "Ephraim Härer",
+      "email": "mail@ephra.im",
+      "role": "Developer",
+      "homepage": "https://ephra.im"
+    }
+  ],
+  "license": "MIT",
+  "support": {
+    "issues": "https://github.com/extcode/wt_cart/issues"
+  },
+  "replace": {
+    "wt_cart": "self.version",
+    "typo3-ter/wt-cart": "self.version"
+  }
+}

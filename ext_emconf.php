@@ -13,11 +13,11 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'Adds shopping cart(s) to your TYPO3 installation and utilizes powermail for checkout',
 	'category' => 'plugin',
 	'shy' => '',
-	'version' => '4.0.0',
+	'version' => '4.0.1',
 	'constraints' => array(
 		'depends' => array(
 			'typo3' => '7.6.0-7.99.99',
-			'php' => '5.4.0-7.1.99',
+			'php' => '5.6.0-7.1.99',
 		),
 		'conflicts' => array(
 		),
